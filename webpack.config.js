@@ -1,4 +1,6 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
+
 module.exports = {
   module: {
     rules: [
@@ -32,7 +34,8 @@ module.exports = {
     new HtmlWebPackPlugin({
       template: "./src/index.html",
       filename: "./index.html"
-    })
+    }),
+    new CopyPlugin([{ from: "public/fonts", to: "fonts" }])
   ],
   //avoid error https://github.com/react-boilerplate/react-boilerplate/issues/2279
   node: {
