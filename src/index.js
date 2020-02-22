@@ -4,13 +4,20 @@ import THREE, {
   CubeGeometry,
   MeshBasicMaterial
 } from "three";
-
+import fragmentShader from "../src/Utils/logo.glsl";
 import Physijs from "physijs-webpack";
 
 const TIME_MAX = 2000;
 const TIME_MIN = 500;
 
-var scene, renderer, camera, timeInit, timePassed, timeInterval, text;
+var scene,
+  renderer,
+  camera,
+  timeInit,
+  timePassed,
+  timeInterval,
+  text,
+  newUniform;
 var cubesBag = [];
 
 const initScene = () => {
@@ -30,18 +37,18 @@ const initScene = () => {
   camera.lookAt(scene.position);
   scene.add(camera);
 
-  //add main cube
-  var geometry = new THREE.BoxGeometry(10, 10, 10);
-  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  var cube = new THREE.Mesh(geometry, material);
+  // //add main cube
+  // var geometry = new THREE.BoxGeometry(10, 10, 10);
+  // var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  // var cube = new THREE.Mesh(geometry, material);
 
-  // wireframe
-  var geo = new THREE.EdgesGeometry(cube.geometry); // or WireframeGeometry
-  var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-  var wireframe = new THREE.LineSegments(geo, mat);
+  // // wireframe
+  // var geo = new THREE.EdgesGeometry(cube.geometry); // or WireframeGeometry
+  // var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+  // var wireframe = new THREE.LineSegments(geo, mat);
 
-  cube.add(wireframe);
-  scene.add(cube);
+  // cube.add(wireframe);
+  // scene.add(cube);
 
   //add text
   var loader = new THREE.FontLoader();
@@ -73,6 +80,9 @@ const initScene = () => {
 
   //add cubes falling
   dropCube(getNewPosition());
+
+  //add logo shader
+  addLogo();
 
   timeInterval = getNewTnterval();
   timeInit = Date.now();
@@ -112,6 +122,8 @@ const render = function() {
 
   removeCubesOOS();
 
+  newUniform.u_time.value += 0.05;
+
   scene.simulate(); // run physics
   renderer.render(scene, camera); // render the scene
 
@@ -135,6 +147,31 @@ const dropCube = position => {
   cubesBag.push(box);
   box.add(wireframe);
   scene.add(box);
+};
+
+const addLogo = () => {
+  newUniform = {
+    u_time: { type: "1f", value: 0 },
+    u_resolution: { type: "v2", value: new THREE.Vector2() }
+  };
+
+  newUniform.u_time.value += 0.05;
+  newUniform.u_resolution.value.x = window.innerWidth;
+  newUniform.u_resolution.value.y = window.innerHeight;
+
+  var material = new THREE.ShaderMaterial({
+    uniforms: newUniform,
+    fragmentShader: fragmentShader //pixel
+  });
+
+  var geometry = new THREE.PlaneBufferGeometry(100, 100);
+  var mesh = new THREE.Mesh(geometry, material);
+
+  const geometryCube = new THREE.BoxGeometry(1, 1, 1);
+  const materialCube = new THREE.MeshBasicMaterial({ color: "#FF0000" });
+  var cube = new THREE.Mesh(geometryCube, materialCube);
+  mesh.lookAt(camera.position);
+  scene.add(mesh);
 };
 
 window.onload = initScene();
