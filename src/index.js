@@ -5,7 +5,6 @@ import THREE, {
   MeshBasicMaterial
 } from "three";
 import fragmentShader from "../src/Utils/logo.glsl";
-import Physijs from "physijs-webpack";
 
 const TIME_MAX = 2000;
 const TIME_MIN = 500;
@@ -26,63 +25,23 @@ const initScene = () => {
 
   document.getElementById("viewport").appendChild(renderer.domElement);
 
-  scene = new Physijs.Scene();
+  scene = new THREE.Scene();
   camera = new PerspectiveCamera(
     35,
     window.innerWidth / window.innerHeight,
     1,
     1000
   );
-  camera.position.set(50, 50, 60);
+  camera.position.set(0, 0, 100);
   camera.lookAt(scene.position);
   scene.add(camera);
-
-  // //add main cube
-  // var geometry = new THREE.BoxGeometry(10, 10, 10);
-  // var material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-  // var cube = new THREE.Mesh(geometry, material);
-
-  // // wireframe
-  // var geo = new THREE.EdgesGeometry(cube.geometry); // or WireframeGeometry
-  // var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-  // var wireframe = new THREE.LineSegments(geo, mat);
-
-  // cube.add(wireframe);
-  // scene.add(cube);
-
-  //add text
-  var loader = new THREE.FontLoader();
-  loader.load("fonts/helvetiker_regular.typeface.json", function(font) {
-    var geometry = new THREE.TextGeometry("SOLID", {
-      font: font,
-      size: 10,
-      height: 3,
-      curveSegments: 5,
-      bevelEnabled: false,
-      bevelThickness: 0.1,
-      bevelSize: 1,
-      bevelOffset: 0,
-      bevelSegments: 1
-    });
-
-    var material = new THREE.MeshBasicMaterial({ color: 0x044922 });
-    var mesh = new THREE.Mesh(geometry, material);
-
-    var geo = new THREE.EdgesGeometry(mesh.geometry); // or WireframeGeometry
-    var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-    var wireframe = new THREE.LineSegments(geo, mat);
-
-    mesh.position.set(-10, 0, 15);
-    mesh.lookAt(camera.position);
-    mesh.add(wireframe);
-    scene.add(mesh);
-  });
 
   //add cubes falling
   dropCube(getNewPosition());
 
   //add logo shader
   addLogo();
+  addText();
 
   timeInterval = getNewTnterval();
   timeInit = Date.now();
@@ -123,8 +82,6 @@ const render = function() {
   removeCubesOOS();
 
   newUniform.u_time.value += 0.05;
-
-  scene.simulate(); // run physics
   renderer.render(scene, camera); // render the scene
 
   requestAnimationFrame(render);
@@ -132,10 +89,9 @@ const render = function() {
 
 const dropCube = position => {
   // Box
-  const box = new Physijs.BoxMesh(
-    new CubeGeometry(5, 5, 5),
-    new MeshBasicMaterial({ color: 0x888888 })
-  );
+  var geometry = new THREE.BoxGeometry(1, 1, 1);
+  var material = new THREE.MeshBasicMaterial({ color: 0x888888 });
+  var box = new THREE.Mesh(geometry, material);
 
   // wireframe
   var geo = new THREE.EdgesGeometry(box.geometry); // or WireframeGeometry
@@ -172,6 +128,36 @@ const addLogo = () => {
   var cube = new THREE.Mesh(geometryCube, materialCube);
   mesh.lookAt(camera.position);
   scene.add(mesh);
+};
+
+const addText = () => {
+  //add text
+  var loader = new THREE.FontLoader();
+  loader.load("fonts/helvetiker_regular.typeface.json", function(font) {
+    var geometry = new THREE.TextGeometry("SOLID", {
+      font: font,
+      size: 10,
+      height: 3,
+      curveSegments: 5,
+      bevelEnabled: false,
+      bevelThickness: 0.1,
+      bevelSize: 1,
+      bevelOffset: 0,
+      bevelSegments: 1
+    });
+
+    var material = new THREE.MeshBasicMaterial({ color: 0x044922 });
+    var mesh = new THREE.Mesh(geometry, material);
+
+    var geo = new THREE.EdgesGeometry(mesh.geometry); // or WireframeGeometry
+    var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+    var wireframe = new THREE.LineSegments(geo, mat);
+
+    mesh.position.set(-20, -5, 10);
+    mesh.lookAt(camera.position);
+    mesh.add(wireframe);
+    scene.add(mesh);
+  });
 };
 
 window.onload = initScene();
