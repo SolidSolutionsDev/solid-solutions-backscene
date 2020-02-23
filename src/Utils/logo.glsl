@@ -159,5 +159,9 @@ void main() {
     vec3 rayDirection = normalize(vec3(q, 0.) - rayOrigin);
 
     gl_FragColor = vec4(castRay(rayOrigin, rayDirection), 1.0);
+
+    if(gl_FragColor == vec4 (0.0,0.0,0.0,1.0)) {
+        gl_FragColor.a = 0.0;
+    } 
     
 }

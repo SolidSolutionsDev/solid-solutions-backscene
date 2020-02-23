@@ -120,6 +120,8 @@ const addLogo = () => {
     fragmentShader: fragmentShader //pixel
   });
 
+  material.transparent = true;
+
   var geometry = new THREE.PlaneBufferGeometry(100, 100);
   var mesh = new THREE.Mesh(geometry, material);
 
