@@ -6,9 +6,8 @@ precision mediump float;
 #define TWO_PI 6.28318530718
 
 const int MAX_STEPS = 32;
-const float PRECISION = 0.1;
-const float MAX_DISTANCE = 99999.;
-const int SPHERE_COUNT = 8;
+const float PRECISION = 0.05;
+const int SPHERE_COUNT = 6;
 
 uniform float u_time;       // Time in seconds since load
 uniform vec2 u_resolution;  // Canvas size (width,height)
@@ -152,16 +151,23 @@ vec3 castRay (vec3 rayOrigin, vec3 rayDirection) {
     return background(rayOrigin, rayDirection);
 }
 
+
 void main() {
-    vec3 rayOrigin = vec3(0., 0., 1.);
+    vec3 rayOrigin = vec3(0., 0., .1);
 	vec2 vUv = gl_FragCoord.xy/u_resolution.xy;
     vec2 q = (vUv.xy * u_resolution.xy - .5 * u_resolution.xy) / u_resolution.y;
     vec3 rayDirection = normalize(vec3(q, 0.) - rayOrigin);
+
+    // Step will return 0.0 unless the value is over 0.5 that return 1.0
+    //float y = step(0.45,vUv.x) * (1. - step(0.55,vUv.x)) * step(0.45,vUv.y) * (1. - step(0.55,vUv.y));
+    //gl_FragColor = vec4(1.0,0.5,0.5,0.5); /test
+    //vec4 finalColor = vec4(castRay(rayOrigin, rayDirection), 1.0);
 
     gl_FragColor = vec4(castRay(rayOrigin, rayDirection), 1.0);
 
     if(gl_FragColor == vec4 (0.0,0.0,0.0,1.0)) {
         gl_FragColor.a = 0.0;
     } 
+
     
 }
