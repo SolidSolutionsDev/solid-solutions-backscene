@@ -16,7 +16,14 @@ var scene,
   timePassed,
   timeInterval,
   text,
-  newUniform;
+  newUniform,
+  logo,
+  frontCube,
+  midSphere1,
+  midSphere2,
+  midSphere3,
+  midSphere4,
+  backCube;
 var cubesBag = [];
 
 const initScene = () => {
@@ -32,16 +39,22 @@ const initScene = () => {
     1,
     1000
   );
-  camera.position.set(0, 0, 100);
+  camera.position.set(0, 0, 50);
   camera.lookAt(scene.position);
   scene.add(camera);
 
-  //add cubes falling
-  dropCube(getNewPosition());
+  //add rotating cubes
+  frontCube = dropCube({ x: 0, y: 0, z: 5 });
+  backCube = dropCube({ x: 0, y: 0, z: -5 });
+
+  midSphere1 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  midSphere2 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  midSphere3 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  midSphere4 = rotatingSphere({ x: 0, y: 0, z: 0 });
 
   //add logo shader
-  addLogo();
-  addText();
+  logo = addLogo();
+  //addText();
 
   timeInterval = getNewTnterval();
   timeInit = Date.now();
@@ -69,19 +82,49 @@ const removeCubesOOS = () => {
   });
 };
 
-const render = function() {
+const rotatingComposition = () => {
+  var orbitSpeed = Date.now() * 0.001;
+  var orbitDistance = 5;
+
+  frontCube.position.set(
+    Math.cos(orbitSpeed) * orbitDistance,
+    0,
+    Math.sin(orbitSpeed) * orbitDistance
+  );
+
+  frontCube.rotation.set(newUniform.u_time.value, 50, 20);
+
+  frontCube.lookAt(logo.position);
+
+  backCube.position.set(
+    Math.cos(orbitSpeed + Math.PI) * orbitDistance,
+    0,
+    Math.sin(orbitSpeed + Math.PI) * orbitDistance
+  );
+
+  backCube.rotation.set(newUniform.u_time.value, 50, 20);
+
+  backCube.lookAt(logo.position);
+
+  midSphere2.rotation.set(15, newUniform.u_time.value, 20);
+  midSphere1.rotation.set(0, -newUniform.u_time.value, 0);
+  midSphere3.rotation.set(180, -newUniform.u_time.value, 0);
+  midSphere4.rotation.set(90, -newUniform.u_time.value, 0);
+};
+
+const render = () => {
   timePassed = Date.now() - timeInit;
 
   if (timePassed > timeInterval) {
-    console.log("new cube");
-    dropCube(getNewPosition());
+    //dropCube(getNewPosition());
     timeInit = Date.now();
     timeInterval = getNewTnterval();
   }
 
-  removeCubesOOS();
+  rotatingComposition();
+  removeCubesOOS(); //remove cubes out of sight
 
-  newUniform.u_time.value += 0.05;
+  newUniform.u_time.value += 0.02;
   renderer.render(scene, camera); // render the scene
 
   requestAnimationFrame(render);
@@ -89,7 +132,7 @@ const render = function() {
 
 const dropCube = position => {
   // Box
-  var geometry = new THREE.BoxGeometry(1, 1, 1);
+  var geometry = new THREE.BoxGeometry(2, 3, 1);
   var material = new THREE.MeshBasicMaterial({ color: 0x888888 });
   var box = new THREE.Mesh(geometry, material);
 
@@ -103,6 +146,38 @@ const dropCube = position => {
   cubesBag.push(box);
   box.add(wireframe);
   scene.add(box);
+
+  return box;
+};
+
+const rotatingSphere = position => {
+  var startingAngle = Math.random() * Math.PI;
+
+  // Box
+  var geometry = new THREE.SphereGeometry(
+    2,
+    32,
+    16,
+    startingAngle,
+    Math.PI / 8,
+    0,
+    Math.PI
+  );
+  var material = new THREE.MeshBasicMaterial({ color: 0x888888 });
+  material.side = THREE.DoubleSide;
+  var sphere = new THREE.Mesh(geometry, material);
+
+  // wireframe
+  var geo = new THREE.EdgesGeometry(sphere.geometry); // or WireframeGeometry
+  var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+  var wireframe = new THREE.LineSegments(geo, mat);
+
+  sphere.position.set(position.x, position.y, position.z);
+
+  sphere.add(wireframe);
+  scene.add(sphere);
+
+  return sphere;
 };
 
 const addLogo = () => {
@@ -111,7 +186,7 @@ const addLogo = () => {
     u_resolution: { type: "v2", value: new THREE.Vector2() }
   };
 
-  newUniform.u_time.value += 0.05;
+  newUniform.u_time.value = 10;
   newUniform.u_resolution.value.x = window.innerWidth;
   newUniform.u_resolution.value.y = window.innerHeight;
 
@@ -125,11 +200,10 @@ const addLogo = () => {
   var geometry = new THREE.PlaneBufferGeometry(100, 100);
   var mesh = new THREE.Mesh(geometry, material);
 
-  const geometryCube = new THREE.BoxGeometry(1, 1, 1);
-  const materialCube = new THREE.MeshBasicMaterial({ color: "#FF0000" });
-  var cube = new THREE.Mesh(geometryCube, materialCube);
   mesh.lookAt(camera.position);
   scene.add(mesh);
+
+  return mesh;
 };
 
 const addText = () => {
