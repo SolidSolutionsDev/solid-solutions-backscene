@@ -23,14 +23,26 @@ var scene,
   midSphere2,
   midSphere3,
   midSphere4,
+  canvas,
+  clicking,
   backCube;
 var cubesBag = [];
+var spheresBag = [];
 
 const initScene = () => {
   renderer = new WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
 
-  document.getElementById("viewport").appendChild(renderer.domElement);
+  canvas = document.getElementById("viewport");
+  canvas.appendChild(renderer.domElement);
+
+  canvas.onmousedown = () => {
+    clicking = true;
+  };
+
+  canvas.onmouseup = () => {
+    clicking = false;
+  };
 
   scene = new THREE.Scene();
   camera = new PerspectiveCamera(
@@ -44,8 +56,8 @@ const initScene = () => {
   scene.add(camera);
 
   //add rotating cubes
-  frontCube = dropCube({ x: 0, y: 0, z: 5 });
-  backCube = dropCube({ x: 0, y: 0, z: -5 });
+  // frontCube = dropCube({ x: 0, y: 0, z: 5 });
+  // backCube = dropCube({ x: 0, y: 0, z: -5 });
 
   midSphere1 = rotatingSphere({ x: 0, y: 0, z: 0 });
   midSphere2 = rotatingSphere({ x: 0, y: 0, z: 0 });
@@ -86,30 +98,30 @@ const rotatingComposition = () => {
   var orbitSpeed = Date.now() * 0.001;
   var orbitDistance = 5;
 
-  frontCube.position.set(
-    Math.cos(orbitSpeed) * orbitDistance,
-    0,
-    Math.sin(orbitSpeed) * orbitDistance
-  );
+  // frontCube.position.set(
+  //   Math.cos(orbitSpeed) * orbitDistance,
+  //   0,
+  //   Math.sin(orbitSpeed) * orbitDistance
+  // );
 
-  frontCube.rotation.set(newUniform.u_time.value, 50, 20);
+  // frontCube.rotation.set(newUniform.u_time.value, 50, 20);
 
-  frontCube.lookAt(logo.position);
+  // frontCube.lookAt(logo.position);
 
-  backCube.position.set(
-    Math.cos(orbitSpeed + Math.PI) * orbitDistance,
-    0,
-    Math.sin(orbitSpeed + Math.PI) * orbitDistance
-  );
+  // backCube.position.set(
+  //   Math.cos(orbitSpeed + Math.PI) * orbitDistance,
+  //   0,
+  //   Math.sin(orbitSpeed + Math.PI) * orbitDistance
+  // );
 
-  backCube.rotation.set(newUniform.u_time.value, 50, 20);
+  // backCube.rotation.set(newUniform.u_time.value, 50, 20);
 
-  backCube.lookAt(logo.position);
+  // backCube.lookAt(logo.position);
 
-  midSphere2.rotation.set(15, newUniform.u_time.value, 20);
-  midSphere1.rotation.set(0, -newUniform.u_time.value, 0);
-  midSphere3.rotation.set(180, -newUniform.u_time.value, 0);
-  midSphere4.rotation.set(90, -newUniform.u_time.value, 0);
+  midSphere2.rotation.set(45, newUniform.u_time.value * 2, 0);
+  midSphere1.rotation.set(0, -newUniform.u_time.value * 2, 0);
+  midSphere3.rotation.set(180, -newUniform.u_time.value * 2, 0);
+  midSphere4.rotation.set(90, -newUniform.u_time.value * 2, 0);
 };
 
 const render = () => {
@@ -121,10 +133,58 @@ const render = () => {
     timeInterval = getNewTnterval();
   }
 
+  if (clicking) {
+    if (newUniform.u_noise.value < 4) {
+      newUniform.u_noise.value = newUniform.u_noise.value + 0.01;
+    } else {
+      newUniform.u_noise.value = 4;
+    }
+    spheresBag.forEach(sphere => {
+      if (sphere.scale.x < 2) {
+        sphere.scale.x += 0.02;
+      } else {
+        sphere.scale.x = 2;
+      }
+      if (sphere.scale.y < 2) {
+        sphere.scale.y += 0.02;
+      } else {
+        sphere.scale.y = 2;
+      }
+      if (sphere.scale.z < 2) {
+        sphere.scale.z += 0.02;
+      } else {
+        sphere.scale.z = 2;
+      }
+    });
+  } else if (!clicking) {
+    if (newUniform.u_noise.value > 1) {
+      newUniform.u_noise.value = newUniform.u_noise.value - 0.05;
+    } else {
+      newUniform.u_noise.value = 1;
+    }
+    spheresBag.forEach(sphere => {
+      if (sphere.scale.x > 1) {
+        sphere.scale.x -= 0.1;
+      } else {
+        sphere.scale.x = 1;
+      }
+      if (sphere.scale.y > 1) {
+        sphere.scale.y -= 0.1;
+      } else {
+        sphere.scale.y = 1;
+      }
+      if (sphere.scale.z > 1) {
+        sphere.scale.z -= 0.1;
+      } else {
+        sphere.scale.z = 1;
+      }
+    });
+  }
+
   rotatingComposition();
   removeCubesOOS(); //remove cubes out of sight
 
-  newUniform.u_time.value += 0.02;
+  newUniform.u_time.value += 0.01;
   renderer.render(scene, camera); // render the scene
 
   requestAnimationFrame(render);
@@ -176,6 +236,7 @@ const rotatingSphere = position => {
 
   sphere.add(wireframe);
   scene.add(sphere);
+  spheresBag.push(sphere);
 
   return sphere;
 };
@@ -183,10 +244,12 @@ const rotatingSphere = position => {
 const addLogo = () => {
   newUniform = {
     u_time: { type: "1f", value: 0 },
-    u_resolution: { type: "v2", value: new THREE.Vector2() }
+    u_resolution: { type: "v2", value: new THREE.Vector2() },
+    u_noise: { type: "1f", value: 1 }
   };
 
   newUniform.u_time.value = 10;
+  newUniform.u_noise.value = 1;
   newUniform.u_resolution.value.x = window.innerWidth;
   newUniform.u_resolution.value.y = window.innerHeight;
 

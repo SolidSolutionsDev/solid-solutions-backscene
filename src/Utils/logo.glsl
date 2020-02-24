@@ -11,6 +11,7 @@ const int SPHERE_COUNT = 6;
 
 uniform float u_time;       // Time in seconds since load
 uniform vec2 u_resolution;  // Canvas size (width,height)
+uniform float u_noise;
 
 vec3 diffuseLight (vec3 lightPosition, vec3 lightColor, vec3 point, vec3 normal) {
     vec3 lightDirection = normalize(lightPosition - point);
@@ -85,8 +86,8 @@ float spheresMap (vec3 point) {
     for (int i = 0; i < SPHERE_COUNT; i++) {
         sphereRand = rand(float(i)) + rand(float(i-1));
         sphereSpeed = 1. / sphereRand;
-        sphereRadius = (1. - sphereRand * sin(u_time) * cos(u_time * sphereRand));
-        spherePos = vec3(center.x + sin(u_time * sphereRand *  - randSignal(sphereRand) * .4), center.y  + sin(u_time * sphereRand*  + randSignal(sphereRand) * 2.4), center.z  + sin(u_time * sphereRand / .3) *  - randSignal(sphereRand) * 1.);
+        sphereRadius = (1. - sphereRand * sin(u_time*u_noise) * cos(u_time*u_noise * sphereRand));
+        spherePos = vec3(center.x + sin(u_time*u_noise * sphereRand *  - randSignal(sphereRand) * .4), center.y  + sin(u_time*u_noise * sphereRand*  + randSignal(sphereRand) * 2.4), center.z  + sin(u_time*u_noise * sphereRand / .3) *  - randSignal(sphereRand) * 1.);
 
         d = opSmoothUnion(d, sdSphere(point, spherePos, sphereRadius), 1.);
     }
@@ -107,7 +108,7 @@ float map (vec3 point) {
 
 vec3 mainColor (vec3 point, vec3 normal, float totalDistance) {
     return (normal * 0.2 +
-        diffuseLight(vec3(10., 0., 10.), vec3(.3, .4, 1.), point, normal) * 0.7 +
+        diffuseLight(vec3(10., 0., 10.), vec3(.3, .4*u_noise, 1.), point, normal) * 0.7 +
         diffuseLight(vec3(-10., 0., 10.), vec3(1., .4, .3), point, normal) * 0.3);
 }
 
@@ -153,7 +154,7 @@ vec3 castRay (vec3 rayOrigin, vec3 rayDirection) {
 
 
 void main() {
-    vec3 rayOrigin = vec3(0., 0., .1);
+    vec3 rayOrigin = vec3(0., 0., .2);
 	vec2 vUv = gl_FragCoord.xy/u_resolution.xy;
     vec2 q = (vUv.xy * u_resolution.xy - .5 * u_resolution.xy) / u_resolution.y;
     vec3 rayDirection = normalize(vec3(q, 0.) - rayOrigin);
