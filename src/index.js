@@ -59,10 +59,10 @@ const initScene = () => {
   // frontCube = dropCube({ x: 0, y: 0, z: 5 });
   // backCube = dropCube({ x: 0, y: 0, z: -5 });
 
-  midSphere1 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  midSphere2 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  midSphere3 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  midSphere4 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere1 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere2 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere3 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere4 = rotatingSphere({ x: 0, y: 0, z: 0 });
 
   //add logo shader
   logo = addLogo();
@@ -118,10 +118,10 @@ const rotatingComposition = () => {
 
   // backCube.lookAt(logo.position);
 
-  midSphere2.rotation.set(45, newUniform.u_time.value * 2, 0);
-  midSphere1.rotation.set(0, -newUniform.u_time.value * 2, 0);
-  midSphere3.rotation.set(180, -newUniform.u_time.value * 2, 0);
-  midSphere4.rotation.set(90, -newUniform.u_time.value * 2, 0);
+  // midSphere2.rotation.set(45, newUniform.u_time.value * 2, 0);
+  // midSphere1.rotation.set(0, -newUniform.u_time.value * 2, 0);
+  // midSphere3.rotation.set(180, -newUniform.u_time.value * 2, 0);
+  // midSphere4.rotation.set(90, -newUniform.u_time.value * 2, 0);
 };
 
 const render = () => {
@@ -300,3 +300,26 @@ const addText = () => {
 };
 
 window.onload = initScene();
+
+//Shader example
+// void mainImage( out vec4 fragColor, in vec2 fragCoord )
+// {
+//       vec2 uv = -1.0 + 2.0*fragCoord.xy / iResolution.xy;
+//       uv.x *=  iResolution.x / iResolution.y;
+//       vec3 color = vec3(0.0);
+//       for( int i=0; i<180; i++ )
+//       {
+//         float pha =      sin(float(i)*1.13+1.0)*0.5 + 0.5;
+//         float siz = sin(float(i)*1.74+1.0)*0.5 + 0.5;
+//         float pox =      sin(float(i)*1.1) * iResolution.x / iResolution.y;
+//         float rad = 0.1+0.5*siz+sin(pha+siz)/4.0;
+//         vec2  pos = vec2( pox+sin(iTime/15.+pha+siz), -1.0-rad + (2.0+2.0*rad)*mod(pha+0.3*(iTime/7.)*(0.2+0.8*siz),1.0));
+//         float dis = length( uv - pos );
+//         vec3  col = mix( vec3(0.1*sin(iTime/6.0)+0.3,0.2,0.3*pha), vec3(1.1*sin(iTime/9.0)+0.3,0.2*pha,0.4), 0.5+0.5*sin(float(i)));
+//         float f = length(uv-pos)/rad;
+//         f = sqrt(clamp(1.0+(sin((iTime)*siz)*0.5)*f,0.0,1.0));
+//         color += col.zyx *(1.0-smoothstep( 0.00005, 0.01, dis ));
+//       }
+//       color *= sqrt(1.5-0.5*length(uv));
+//       fragColor = vec4(color,1.0);
+// }
