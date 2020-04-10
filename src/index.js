@@ -2,7 +2,7 @@ import THREE, {
   WebGLRenderer,
   PerspectiveCamera,
   CubeGeometry,
-  MeshBasicMaterial
+  MeshBasicMaterial,
 } from "three";
 import fragmentShader from "../src/Utils/logo.glsl";
 
@@ -44,13 +44,13 @@ const initScene = () => {
   scene.add(camera);
 
   //add rotating cubes
-  frontCube = dropCube({ x: 0, y: 0, z: 5 });
-  backCube = dropCube({ x: 0, y: 0, z: -5 });
+  // frontCube = dropCube({ x: 0, y: 0, z: 5 });
+  // backCube = dropCube({ x: 0, y: 0, z: -5 });
 
-  midSphere1 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  midSphere2 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  midSphere3 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  midSphere4 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere1 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere2 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere3 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  // midSphere4 = rotatingSphere({ x: 0, y: 0, z: 0 });
 
   //add logo shader
   logo = addLogo();
@@ -75,7 +75,7 @@ const getNewPosition = () => {
 };
 
 const removeCubesOOS = () => {
-  scene.children.forEach(cube => {
+  scene.children.forEach((cube) => {
     if (cube.position.y < -100) {
       scene.remove(cube);
     }
@@ -121,8 +121,8 @@ const render = () => {
     timeInterval = getNewTnterval();
   }
 
-  rotatingComposition();
-  removeCubesOOS(); //remove cubes out of sight
+  // rotatingComposition();
+  // removeCubesOOS(); //remove cubes out of sight
 
   newUniform.u_time.value += 0.02;
   renderer.render(scene, camera); // render the scene
@@ -130,7 +130,7 @@ const render = () => {
   requestAnimationFrame(render);
 };
 
-const dropCube = position => {
+const dropCube = (position) => {
   // Box
   var geometry = new THREE.BoxGeometry(2, 3, 1);
   var material = new THREE.MeshBasicMaterial({ color: 0x888888 });
@@ -150,7 +150,7 @@ const dropCube = position => {
   return box;
 };
 
-const rotatingSphere = position => {
+const rotatingSphere = (position) => {
   var startingAngle = Math.random() * Math.PI;
 
   // Box
@@ -183,7 +183,7 @@ const rotatingSphere = position => {
 const addLogo = () => {
   newUniform = {
     u_time: { type: "1f", value: 0 },
-    u_resolution: { type: "v2", value: new THREE.Vector2() }
+    u_resolution: { type: "v2", value: new THREE.Vector2() },
   };
 
   newUniform.u_time.value = 10;
@@ -192,7 +192,7 @@ const addLogo = () => {
 
   var material = new THREE.ShaderMaterial({
     uniforms: newUniform,
-    fragmentShader: fragmentShader //pixel
+    fragmentShader: fragmentShader, //pixel
   });
 
   material.transparent = true;
@@ -209,7 +209,7 @@ const addLogo = () => {
 const addText = () => {
   //add text
   var loader = new THREE.FontLoader();
-  loader.load("fonts/helvetiker_regular.typeface.json", function(font) {
+  loader.load("fonts/helvetiker_regular.typeface.json", function (font) {
     var geometry = new THREE.TextGeometry("SOLID", {
       font: font,
       size: 10,
@@ -219,7 +219,7 @@ const addText = () => {
       bevelThickness: 0.1,
       bevelSize: 1,
       bevelOffset: 0,
-      bevelSegments: 1
+      bevelSegments: 1,
     });
 
     var material = new THREE.MeshBasicMaterial({ color: 0x044922 });

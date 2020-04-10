@@ -8,7 +8,7 @@ precision mediump float;
 const int MAX_STEPS = 32;
 const float PRECISION = 0.1;
 const float MAX_DISTANCE = 99999.;
-const int SPHERE_COUNT = 8;
+const int SPHERE_COUNT = 1;
 
 uniform float u_time;       // Time in seconds since load
 uniform vec2 u_resolution;  // Canvas size (width,height)
@@ -69,25 +69,26 @@ float sdSphere (vec3 point, vec3 position, float radius) {
 float sdBox (vec3 point, vec3 position, vec3 b) {
   vec3 q = abs(point - position) - b;
   return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+  //return length(min(q,0.0)) + max(min(q.x,max(q.y,q.z)),0.0);
 }
 
 float opSmoothUnion (float distance1, float distance2, float amount) {
-    float h = clamp(0.5 + 0.5 * (distance2 - distance1) / amount, 0., 1.);
+    float h = clamp(0.8 + 0.5 * (distance2 - distance1) / amount, 0., 1.);
     return mix(distance2, distance1, h) - amount * h * (1. - h); 
 }
 
 float spheresMap (vec3 point) {
-     vec3 center = vec3(0., 0., 0.);
+     vec3 center = vec3(3., 0., 0.);
 
     float d = 99999.;
 
     float sphereRand, sphereSpeed, sphereRadius;
     vec3 spherePos;
     for (int i = 0; i < SPHERE_COUNT; i++) {
-        sphereRand = rand(float(i)) + rand(float(i-1));
+        sphereRand = 5.0;
         sphereSpeed = 1. / sphereRand;
-        sphereRadius = (1. - sphereRand * sin(u_time) * cos(u_time * sphereRand));
-        spherePos = vec3(center.x + sin(u_time * sphereRand *  - randSignal(sphereRand) * .4), center.y  + sin(u_time * sphereRand*  + randSignal(sphereRand) * 2.4), center.z  + sin(u_time * sphereRand / .3) *  - randSignal(sphereRand) * 1.);
+        sphereRadius = 1.0;
+        spherePos = vec3(center.x + sin(u_time * sphereRand *  - randSignal(sphereRand) * .6), center.y, center.z);
 
         d = opSmoothUnion(d, sdSphere(point, spherePos, sphereRadius), 1.);
     }
@@ -102,7 +103,8 @@ float cubeMap (vec3 point) {
 }
 
 float map (vec3 point) {
-    vec3 transformedPoint = (point + vec3(0., 0., 10.)) * rotX(u_time) * rotY(u_time) * rotZ(u_time);
+    vec3 transformedPoint = (point + vec3(0., 0., 10.)) * rotX(-PI/4.0) * rotY(PI/2.0) * rotZ(-PI/2.0);
+    // * rotX(u_time) * rotY(u_time) * rotZ(u_time)
     return opSmoothUnion(spheresMap(transformedPoint), cubeMap(transformedPoint), .4);
 }
 
