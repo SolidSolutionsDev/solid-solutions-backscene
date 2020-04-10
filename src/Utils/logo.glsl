@@ -68,8 +68,8 @@ float sdSphere (vec3 point, vec3 position, float radius) {
 
 float sdBox (vec3 point, vec3 position, vec3 b) {
   vec3 q = abs(point - position) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
-  //return length(min(q,0.0)) + max(min(q.x,max(q.y,q.z)),0.0);
+  //return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+  return length(min(q,0.0)) + max(min(q.x,max(q.y,q.z)),0.0);
 }
 
 float opSmoothUnion (float distance1, float distance2, float amount) {
@@ -88,7 +88,7 @@ float spheresMap (vec3 point) {
         sphereRand = 5.0;
         sphereSpeed = 1. / sphereRand;
         sphereRadius = 1.0;
-        spherePos = vec3(center.x + sin(u_time * sphereRand *  - randSignal(sphereRand) * .6), center.y, center.z);
+        spherePos = vec3(center.x + sin(u_time * sphereRand *  - randSignal(sphereRand) * .6)*10.0, center.y, center.z);
 
         d = opSmoothUnion(d, sdSphere(point, spherePos, sphereRadius), 1.);
     }
