@@ -43,6 +43,7 @@
     "bootstrap": "^4.4.1",
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.2.0",
+    "dat.gui": "^0.7.7",
     "emoji-emotion": "^2.1.2",
     "lodash": "^4.17.15",
     "physijs-webpack": "^0.1.4",
