@@ -166,33 +166,7 @@ void main() {
     //gl_FragColor = vec4(1.0,0.5,0.5,0.5); /test
     //vec4 finalColor = vec4(castRay(rayOrigin, rayDirection), 1.0);
 
-
-      vec2 uv = -1.0 + 2.0*vUv;
-      uv.x *=  u_resolution.x / u_resolution.y;
-      vec3 color = vec3(0.0);
-      float time = u_time*10.0;
-      for( int i=0; i<40; i++ )
-      {
-        float pha =      sin(float(i)*1.13+1.0)*0.5 + 0.5;
-        float siz = sin(float(i)*1.74+1.0)*0.5 + 0.5;
-        float pox =      sin(float(i)*1.1) * u_resolution.x / u_resolution.y;
-        float rad = 0.1+0.5*siz+sin(pha+siz)/4.0;
-        vec2  pos = vec2( pox+sin(time/15.+pha+siz), -1.0-rad + (2.0+2.0*rad)*mod(pha+0.3*(time/7.)*(0.2+0.8*siz),1.0));
-        float dis = length( uv - pos );
-        vec3  col = mix( vec3(0.1*sin(time/6.0)+0.3,0.2,0.3*pha), vec3(1.1*sin(time/9.0)+0.3,0.2*pha,0.4), 0.5+0.5*sin(float(i)));
-        float f = length(uv-pos)/rad;
-        f = sqrt(clamp(1.0+(sin((time)*siz)*0.5)*f,0.0,1.0));
-        color += col.zyx * smoothstep( 0.005, .001, dis );
-      }
-      color *= sqrt(1.5-0.5*length(uv));
-      //fragColor = vec4(color,1.0);
-
-    vec4 aux = vec4(castRay(rayOrigin, rayDirection), 1.0) + vec4(color,1.0);
-
-    if(aux.x + aux.y + aux.z < 0.1) {
-        aux = vec4 (0.0,0.0,0.0,0.0);
-    }
-    gl_FragColor = aux;
+    gl_FragColor = vec4(castRay(rayOrigin, rayDirection), 1.0);
 
     if(gl_FragColor == vec4 (0.0,0.0,0.0,1.0)) {
         gl_FragColor.a = 0.0;
