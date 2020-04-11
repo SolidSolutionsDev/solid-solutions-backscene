@@ -123,10 +123,20 @@ const render = () => {
 
   // rotatingComposition();
   // removeCubesOOS(); //remove cubes out of sight
+  if (newUniform.u_movementTiming.value < 10) {
+    if (newUniform.u_rotationTiming.value <= 0.7) {
+      newUniform.u_movementTiming.value += 0.4;
+      if (newUniform.u_rotationTiming.value >= 0.5) {
+        newUniform.u_rotationTiming.value -= 0.01;
+      }
+    } else {
+      newUniform.u_rotationTiming.value -= 0.01;
+      console.log(newUniform.u_rotationTiming.value);
+    }
+    newUniform.u_time.value += 0.02;
 
-  newUniform.u_time.value += 0.02;
-  renderer.render(scene, camera); // render the scene
-
+    renderer.render(scene, camera); // render the scene
+  }
   requestAnimationFrame(render);
 };
 
@@ -184,6 +194,8 @@ const addLogo = () => {
   newUniform = {
     u_time: { type: "1f", value: 0 },
     u_resolution: { type: "v2", value: new THREE.Vector2() },
+    u_rotationTiming: { type: "1f", value: 3.0 },
+    u_movementTiming: { type: "1f", value: 0 },
   };
 
   newUniform.u_time.value = 10;

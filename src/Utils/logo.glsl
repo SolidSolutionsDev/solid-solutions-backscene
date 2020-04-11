@@ -12,6 +12,8 @@ const int SPHERE_COUNT = 1;
 
 uniform float u_time;       // Time in seconds since load
 uniform vec2 u_resolution;  // Canvas size (width,height)
+uniform float u_rotationTiming;
+uniform float u_movementTiming;
 
 vec3 diffuseLight (vec3 lightPosition, vec3 lightColor, vec3 point, vec3 normal) {
     vec3 lightDirection = normalize(lightPosition - point);
@@ -103,7 +105,9 @@ float cubeMap (vec3 point) {
 }
 
 float map (vec3 point) {
-    vec3 transformedPoint = (point + vec3(0., 0., 10.)) * rotX(-PI/4.0) * rotY(PI/2.0) * rotZ(-PI/2.0);
+    //vec3 transformedPoint = (point + vec3(0., 0., 10.)) * rotX(-PI/4.0) * rotY(PI/2.0) * rotZ(-PI/2.0); //INICIO
+    //vec3 transformedPoint = (point + vec3(0., 0., -1.)) * rotX(-PI/2.0) * rotY(PI/2.0) * rotZ(-PI/2.0); //FIM
+    vec3 transformedPoint = (point + vec3(0., 0., 10. - u_movementTiming)) * rotX(-PI/(4.0*u_rotationTiming)) * rotY(PI/2.0) * rotZ(-PI/2.0); //INICIO
     // * rotX(u_time) * rotY(u_time) * rotZ(u_time)
     return opSmoothUnion(spheresMap(transformedPoint), cubeMap(transformedPoint), .4);
 }
