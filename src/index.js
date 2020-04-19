@@ -2,9 +2,11 @@ import THREE, {
   WebGLRenderer,
   PerspectiveCamera,
   CubeGeometry,
-  MeshBasicMaterial
+  MeshBasicMaterial,
 } from "three";
+import $ from "jquery";
 import fragmentShader from "../src/Utils/logo.glsl";
+import { Pokemon } from "./pokemon";
 
 const TIME_MAX = 2000;
 const TIME_MIN = 500;
@@ -53,20 +55,22 @@ const initScene = () => {
   );
   camera.position.set(0, 0, 50);
   camera.lookAt(scene.position);
+
   scene.add(camera);
 
-  //add rotating cubes
-  // frontCube = dropCube({ x: 0, y: 0, z: 5 });
-  // backCube = dropCube({ x: 0, y: 0, z: -5 });
+  const poke1 = Pokemon(1);
+  const poke2 = Pokemon(2);
 
-  // midSphere1 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  // midSphere2 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  // midSphere3 = rotatingSphere({ x: 0, y: 0, z: 0 });
-  // midSphere4 = rotatingSphere({ x: 0, y: 0, z: 0 });
+  let colors = {
+    r: 128,
+    g: 0,
+    b: 0,
+  };
 
-  //add logo shader
-  logo = addLogo();
-  //addText();
+  poke2.addColor(colors);
+
+  scene.add(poke1.poke);
+  scene.add(poke2.poke);
 
   timeInterval = getNewTnterval();
   timeInit = Date.now();
@@ -87,7 +91,7 @@ const getNewPosition = () => {
 };
 
 const removeCubesOOS = () => {
-  scene.children.forEach(cube => {
+  scene.children.forEach((cube) => {
     if (cube.position.y < -100) {
       scene.remove(cube);
     }
@@ -133,64 +137,16 @@ const render = () => {
     timeInterval = getNewTnterval();
   }
 
-  if (clicking) {
-    if (newUniform.u_noise.value < 4) {
-      newUniform.u_noise.value = newUniform.u_noise.value + 0.01;
-    } else {
-      newUniform.u_noise.value = 4;
-    }
-    spheresBag.forEach(sphere => {
-      if (sphere.scale.x < 2) {
-        sphere.scale.x += 0.02;
-      } else {
-        sphere.scale.x = 2;
-      }
-      if (sphere.scale.y < 2) {
-        sphere.scale.y += 0.02;
-      } else {
-        sphere.scale.y = 2;
-      }
-      if (sphere.scale.z < 2) {
-        sphere.scale.z += 0.02;
-      } else {
-        sphere.scale.z = 2;
-      }
-    });
-  } else if (!clicking) {
-    if (newUniform.u_noise.value > 1) {
-      newUniform.u_noise.value = newUniform.u_noise.value - 0.05;
-    } else {
-      newUniform.u_noise.value = 1;
-    }
-    spheresBag.forEach(sphere => {
-      if (sphere.scale.x > 1) {
-        sphere.scale.x -= 0.1;
-      } else {
-        sphere.scale.x = 1;
-      }
-      if (sphere.scale.y > 1) {
-        sphere.scale.y -= 0.1;
-      } else {
-        sphere.scale.y = 1;
-      }
-      if (sphere.scale.z > 1) {
-        sphere.scale.z -= 0.1;
-      } else {
-        sphere.scale.z = 1;
-      }
-    });
-  }
+  // rotatingComposition();
+  // removeCubesOOS(); //remove cubes out of sight
 
-  rotatingComposition();
-  removeCubesOOS(); //remove cubes out of sight
-
-  newUniform.u_time.value += 0.01;
+  // newUniform.u_time.value += 0.02;
   renderer.render(scene, camera); // render the scene
 
   requestAnimationFrame(render);
 };
 
-const dropCube = position => {
+const dropCube = (position) => {
   // Box
   var geometry = new THREE.BoxGeometry(2, 3, 1);
   var material = new THREE.MeshBasicMaterial({ color: 0x888888 });
@@ -210,7 +166,7 @@ const dropCube = position => {
   return box;
 };
 
-const rotatingSphere = position => {
+const rotatingSphere = (position) => {
   var startingAngle = Math.random() * Math.PI;
 
   // Box
@@ -227,9 +183,14 @@ const rotatingSphere = position => {
   material.side = THREE.DoubleSide;
   var sphere = new THREE.Mesh(geometry, material);
 
+  var color2 = new THREE.Color(`rgb(${128}, 128, 128)`);
+
   // wireframe
   var geo = new THREE.EdgesGeometry(sphere.geometry); // or WireframeGeometry
-  var mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+  var mat = new THREE.LineBasicMaterial({
+    color: color2,
+    linewidth: 2,
+  });
   var wireframe = new THREE.LineSegments(geo, mat);
 
   sphere.position.set(position.x, position.y, position.z);
@@ -245,7 +206,6 @@ const addLogo = () => {
   newUniform = {
     u_time: { type: "1f", value: 0 },
     u_resolution: { type: "v2", value: new THREE.Vector2() },
-    u_noise: { type: "1f", value: 1 }
   };
 
   newUniform.u_time.value = 10;
@@ -255,7 +215,7 @@ const addLogo = () => {
 
   var material = new THREE.ShaderMaterial({
     uniforms: newUniform,
-    fragmentShader: fragmentShader //pixel
+    fragmentShader: fragmentShader, //pixel
   });
 
   material.transparent = true;
@@ -272,7 +232,7 @@ const addLogo = () => {
 const addText = () => {
   //add text
   var loader = new THREE.FontLoader();
-  loader.load("fonts/helvetiker_regular.typeface.json", function(font) {
+  loader.load("fonts/helvetiker_regular.typeface.json", function (font) {
     var geometry = new THREE.TextGeometry("SOLID", {
       font: font,
       size: 10,
@@ -282,7 +242,7 @@ const addText = () => {
       bevelThickness: 0.1,
       bevelSize: 1,
       bevelOffset: 0,
-      bevelSegments: 1
+      bevelSegments: 1,
     });
 
     var material = new THREE.MeshBasicMaterial({ color: 0x044922 });
