@@ -8,8 +8,15 @@ import $ from "jquery";
 import fragmentShader from "../src/Utils/logo.glsl";
 import { Pokemon } from "./pokemon";
 
+import "./index.css";
+
 const TIME_MAX = 2000;
 const TIME_MIN = 500;
+
+const windowSize = {
+  width: 860,
+  height: 640,
+};
 
 var scene,
   renderer,
@@ -33,7 +40,7 @@ var spheresBag = [];
 
 const initScene = () => {
   renderer = new WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(windowSize.width, windowSize.height);
 
   canvas = document.getElementById("viewport");
   canvas.appendChild(renderer.domElement);
@@ -49,7 +56,7 @@ const initScene = () => {
   scene = new THREE.Scene();
   camera = new PerspectiveCamera(
     35,
-    window.innerWidth / window.innerHeight,
+    windowSize.width / windowSize.height,
     1,
     1000
   );
@@ -61,13 +68,8 @@ const initScene = () => {
   const poke1 = Pokemon(1);
   const poke2 = Pokemon(2);
 
-  let colors = {
-    r: 128,
-    g: 0,
-    b: 0,
-  };
-
-  poke2.addColor(colors);
+  poke1.initAttackUI(poke2.addColor);
+  poke2.initAttackUI(poke1.addColor);
 
   scene.add(poke1.poke);
   scene.add(poke2.poke);
