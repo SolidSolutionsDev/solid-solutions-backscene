@@ -49,3 +49,13 @@ button:active {
   position: relative;
   top: 1px;
 }
+
+#circularCanvas {
+  position: absolute;
+  left: 0px;
+}
+
+#indicator {
+  position: absolute;
+  left: 0px;
+}
