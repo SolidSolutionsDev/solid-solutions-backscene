@@ -9,9 +9,9 @@ const pokeTypes = [
   },
   {
     type: "green",
-    r: 255,
-    g: 255,
-    b: 255,
+    r: 40,
+    g: 40,
+    b: 40,
   },
 ];
 
@@ -29,8 +29,10 @@ const combatPositions = [
       z: 0.3,
     },
     attacks: [
-      { type: "green", damage: { r: 0, g: 20, b: 0 } },
-      { type: "blue", damage: { r: 0, g: 0, b: 40 } },
+      { type: "Attack", damage: { r: 0, g: 20, b: 0 } },
+      { type: "Attack", damage: { r: 0, g: 0, b: 40 } },
+      { type: "Recharge", damage: { r: 0, g: 0, b: 0 } },
+      { type: "Discharge", damage: { r: 0, g: 0, b: 0 } },
     ],
   },
   {
@@ -52,7 +54,7 @@ const combatPositions = [
   },
 ];
 
-export function Pokemon(_playerNumber) {
+export function addPokemon(_playerNumber) {
   let pokemon = {};
 
   pokemon.state = {
@@ -109,7 +111,8 @@ export function Pokemon(_playerNumber) {
   );
 
   drawCircleOnCanvas();
-  addColorSphere(pokemon, "red");
+
+  addColorSphere(pokemon, { r: 40, g: 0, b: 0 });
 
   //set new color
   pokemon.addColor = (colorDamage) => {
@@ -148,20 +151,30 @@ export function Pokemon(_playerNumber) {
     pokemon.mesh.material.color.set(newColor);
   };
 
-  pokemon.initAttackUI = (takeDamage) => {
+  pokemon.initAttackUI = () => {
     let menu = document.getElementById(`player${playerNumber}_Label`);
+
     combatPositions[playerNumber - 1].attacks.forEach((attack) => {
       let attackBtn = document.createElement("BUTTON");
       attackBtn.innerHTML = attack.type;
+      attackBtn.style.backgroundColor = rgbToHex(attack.damage);
       attackBtn.id = "btn";
+
       attackBtn.onclick = () => {
-        takeDamage(attack.damage);
+        if (attack.type == "Recharge") {
+          addColorSphere(pokemon, { r: 25, g: 25, b: 25 });
+        } else {
+          pokemon.opponent.addColor(attack.damage);
+        }
       };
       menu.appendChild(attackBtn);
     });
   };
 
-  pokemon.init = () => {};
+  pokemon.init = (_opponent) => {
+    pokemon.opponent = _opponent;
+    pokemon.initAttackUI();
+  };
 
   pokemon.update = () => {
     pokemon.childrenObjects.forEach((children) => children.update());
@@ -196,17 +209,29 @@ export function addColorSphere(parent, color) {
   pivot.add(sphere.mesh);
   parent.mesh.add(pivot);
 
+  parent.childrenObjects.push(sphere);
+
   sphere.update = () => {
-    if (sphere.state.initing == true && sphere.mesh.position.z < 4) {
+    if (sphere.state.initing && sphere.mesh.position.z < 4) {
       sphere.mesh.position.z += 0.1;
+    } else {
+      sphere.state.initing = false;
     }
-    if (sphere.state.rotating == true) {
+
+    if (sphere.state.rotating && !sphere.state.attacking) {
       pivot.rotation.y += 0.1;
+    } else if (sphere.state.attacking) {
     }
   };
 
-  parent.childrenObjects.push(sphere);
+  sphere.move = (speed, currentPos, desiredPos) => {
+    var d = mesh.position.x - mesh2.position.x;
+    if (mesh.position.x > mesh2.position.x) {
+      mesh.position.x -= Math.min(speed, d);
+    }
+  };
 }
+
 const initPalette = (playerNumber) => {
   var app = {};
 
@@ -244,27 +269,6 @@ const initPalette = (playerNumber) => {
   app.buildColorPalette();
 
   return app;
-};
-
-const rgb2xy = (r, g, b) => {
-  let radius = 50;
-
-  let hsv = rgb2hsv(r, g, b);
-
-  let theta = deg2rad(hsv.h);
-
-  let distance2center = hsv.s * radius;
-
-  // console.log(
-  //   "hsv: ",
-  //   hsv,
-  //   "theta: " + theta,
-  //   "distance2center: " + distance2center
-  // );
-
-  let position = polar2xy(distance2center, theta);
-
-  return { x: Math.floor(position.x), y: Math.floor(position.y) };
 };
 
 const drawCircleOnCanvas = () => {
@@ -327,7 +331,45 @@ const drawCircleOnCanvas = () => {
   drawCircle();
 };
 
-//degrees
+// [0,255] to [00, FF]
+const componentToHex = (c) => {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+};
+
+//rgb color to hexa color (e.g. #002F02)
+const rgbToHex = (color) => {
+  return (
+    "#" +
+    componentToHex(color.r) +
+    componentToHex(color.g) +
+    componentToHex(color.b)
+  );
+};
+
+//rgb color to 2D position
+const rgb2xy = (r, g, b) => {
+  let radius = 50;
+
+  let hsv = rgb2hsv(r, g, b);
+
+  let theta = deg2rad(hsv.h);
+
+  let distance2center = hsv.s * radius;
+
+  // console.log(
+  //   "hsv: ",
+  //   hsv,
+  //   "theta: " + theta,
+  //   "distance2center: " + distance2center
+  // );
+
+  let position = polar2xy(distance2center, theta);
+
+  return { x: Math.floor(position.x), y: Math.floor(position.y) };
+};
+
+//degrees to radians
 function deg2rad(degrees) {
   var pi = Math.PI;
   return degrees * (pi / 180);

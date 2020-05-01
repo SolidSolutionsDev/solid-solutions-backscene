@@ -1,12 +1,6 @@
-import THREE, {
-  WebGLRenderer,
-  PerspectiveCamera,
-  CubeGeometry,
-  MeshBasicMaterial,
-} from "three";
-import $ from "jquery";
+import THREE, { WebGLRenderer, PerspectiveCamera } from "three";
 import fragmentShader from "../src/Utils/logo.glsl";
-import { Pokemon } from "./pokemon";
+import { addPokemon } from "./pokemon";
 
 import "./index.css";
 
@@ -24,17 +18,9 @@ var scene,
   timeInit,
   timePassed,
   timeInterval,
-  text,
   newUniform,
-  logo,
-  frontCube,
-  midSphere1,
-  midSphere2,
-  midSphere3,
-  midSphere4,
   canvas,
-  clicking,
-  backCube;
+  clicking;
 var cubesBag = [];
 var spheresBag = [];
 
@@ -67,11 +53,11 @@ const initScene = () => {
 
   scene.add(camera);
 
-  const poke1 = Pokemon(1);
-  const poke2 = Pokemon(2);
+  const poke1 = addPokemon(1);
+  const poke2 = addPokemon(2);
 
-  poke1.initAttackUI(poke2.addColor);
-  poke2.initAttackUI(poke1.addColor);
+  poke1.init(poke2);
+  poke2.init(poke1);
 
   scene.add(poke1.mesh);
   scene.add(poke2.mesh);
