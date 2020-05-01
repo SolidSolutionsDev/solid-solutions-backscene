@@ -62,11 +62,10 @@ export function addPokemon(_playerNumber) {
     animating: false,
     playerNumber: _playerNumber,
   };
-
+  let menu, indicator, circleCanvas;
   pokemon.childrenObjects = [];
 
   let playerNumber = _playerNumber;
-  let indicator = document.getElementById("indicator");
   pokemon.stats = {
     animating: false,
     myTurn: true,
@@ -110,8 +109,6 @@ export function addPokemon(_playerNumber) {
     combatPositions[playerNumber - 1].rotation.z
   );
 
-  drawCircleOnCanvas();
-
   addColorSphere(pokemon, { r: 40, g: 0, b: 0 });
 
   //set new color
@@ -141,8 +138,8 @@ export function addPokemon(_playerNumber) {
       pokemon.stats.colors.b
     );
 
-    indicator.style.left = -position.x + 50 + "px";
-    indicator.style.top = -position.y + 50 + "px";
+    indicator.style.left = circleCanvas.offsetLeft - position.x + 50 + "px";
+    indicator.style.top = circleCanvas.offsetTop - position.y + 50 + "px";
     //DEBUG
     // let rgb = [colorDamage.r, colorDamage.g, colorDamage.b];
     // let hsv = rgb2hsv(rgb[0], rgb[1], rgb[2]);
@@ -152,8 +149,8 @@ export function addPokemon(_playerNumber) {
   };
 
   pokemon.initAttackUI = () => {
-    let menu = document.getElementById(`player${playerNumber}_Label`);
-
+    menu = document.getElementById(`slot${playerNumber}_attacks`);
+    indicator = document.getElementById(`slot${playerNumber}_indicator`);
     combatPositions[playerNumber - 1].attacks.forEach((attack) => {
       let attackBtn = document.createElement("BUTTON");
       attackBtn.innerHTML = attack.type;
@@ -176,9 +173,24 @@ export function addPokemon(_playerNumber) {
     });
   };
 
+  pokemon.initColorCicleUI = () => {
+    circleCanvas = drawCircleOnCanvas(_playerNumber);
+
+    const position = rgb2xy(
+      pokemon.stats.colors.r,
+      pokemon.stats.colors.g,
+      pokemon.stats.colors.b
+    );
+
+    indicator.style.left = circleCanvas.offsetLeft - position.x + 50 + "px";
+    indicator.style.top = circleCanvas.offsetTop - position.y + 50 + "px";
+  };
+
   pokemon.init = (_opponent) => {
     pokemon.opponent = _opponent;
     pokemon.initAttackUI();
+
+    pokemon.initColorCicleUI();
   };
 
   pokemon.update = () => {
@@ -303,14 +315,18 @@ const initPalette = (playerNumber) => {
   return app;
 };
 
-const drawCircleOnCanvas = () => {
-  let circleCanvas = document.getElementById("circularCanvas");
+const drawCircleOnCanvas = (_playerNumber) => {
+  let circleCanvas = document.getElementById(
+    `slot${_playerNumber}_colorCanvas`
+  );
   let ctx = circleCanvas.getContext("2d");
 
   function drawCircle() {
     let radius = 50;
     let image = ctx.createImageData(2 * radius, 2 * radius);
     let data = image.data;
+    let rowLength = 2 * radius;
+    let pixelWidth = 4; // each pixel requires 4 slots in the data array
 
     for (let x = -radius; x < radius; x++) {
       for (let y = -radius; y < radius; y++) {
@@ -324,10 +340,9 @@ const drawCircleOnCanvas = () => {
         let deg = rad2deg(phi);
 
         // Figure out the starting index of this pixel in the image data array.
-        let rowLength = 2 * radius;
         let adjustedX = x + radius; // convert x from [-50, 50] to [0, 100] (the coordinates of the image data array)
         let adjustedY = y + radius; // convert y from [-50, 50] to [0, 100] (the coordinates of the image data array)
-        let pixelWidth = 4; // each pixel requires 4 slots in the data array
+
         let index = (adjustedX + adjustedY * rowLength) * pixelWidth;
 
         let hue = deg;
@@ -344,7 +359,6 @@ const drawCircleOnCanvas = () => {
         data[index + 3] = alpha;
       }
     }
-
     ctx.putImageData(image, 0, 0);
   }
 
@@ -361,6 +375,8 @@ const drawCircleOnCanvas = () => {
   }
 
   drawCircle();
+
+  return circleCanvas;
 };
 
 // [0,255] to [00, FF]

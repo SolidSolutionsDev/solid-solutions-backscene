@@ -1,60 +1,55 @@
-#player1 {
-  display: block;
+.slot_UI {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  border-style: solid;
+  border-color: white;
+  border-width: 2px;
+  color: #ffffff;
+  padding: 10px;
+  background: rgba(180, 19, 19, 0);
+}
+
+.colorCanvas {
+  display: flex;
+  flex-direction: column;
+}
+.attacks {
+  display: flex;
+  flex-direction: column;
+}
+
+#slot1 {
   position: absolute;
   bottom: 400px;
   left: 450px;
-  width: 284px;
-  height: 62px;
-  border-width: 2px;
-  border-style: solid;
-  border-color: white;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px;
 }
 
-#player2 {
-  display: block;
+#slot2 {
   position: absolute;
   top: 100px;
   left: 126px;
-  width: 284px;
-  height: 62px;
-  border-width: 2px;
-  border-style: solid;
-  border-color: white;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 5px;
 }
 
 button {
-  border: 1px solid #ffffff;
+  /* border: 1px solid #ffffff;
   margin: 5px;
-  display: inline-block;
-  cursor: pointer;
+  cursor: pointer; */
+  width: 100px;
+  border: 0px;
   color: #ffffff;
   font-family: Arial;
   font-size: 16px;
-  padding: 12px 31px;
-  text-decoration: none;
-  text-shadow: 0px 1px 0px #000000;
+  /* padding: 12px 31px; */
 }
 button:hover {
-  border-width: 4px;
+  color: red;
 }
 
-button:active {
-  position: relative;
-  top: 1px;
+canvas {
 }
 
-#circularCanvas {
+.indicator {
   position: absolute;
-  left: 0px;
-}
-
-#indicator {
-  position: absolute;
-  left: 0px;
+  z-index: 200;
 }

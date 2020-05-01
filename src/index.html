@@ -5,19 +5,20 @@
   </head>
 
   <body>
-    <div id="target">
-      <canvas id="circularCanvas"></canvas>
-      <div id="indicator">O</div>
+    <div id="target"></div>
+    <div class="slot_UI" id="slot1">
+      <div class="attacks" id="slot1_attacks"></div>
+      <div class="colorCanvas">
+        <canvas id="slot1_colorCanvas" width="100px" height="100px"></canvas>
+        <div class="indicator" id="slot1_indicator">O</div>
+      </div>
     </div>
-    <div id="player1">
-      <div id="player1_Label">Player 1</div>
-      <div id="player1_Attack">_</div>
-      <canvas id="color-palette_1" width="284" height="25"></canvas>
-    </div>
-    <div id="player2">
-      <div id="player2_Label">Player 2</div>
-      <div id="player2_Attack">_</div>
-      <canvas id="color-palette_2" width="284" height="25"></canvas>
+    <div class="slot_UI" id="slot2">
+      <div class="attacks" id="slot2_attacks"></div>
+      <div class="colorCanvas">
+        <canvas id="slot2_colorCanvas" width="100px" height="100px"></canvas>
+        <div class="indicator" id="slot2_indicator">O</div>
+      </div>
     </div>
 
     <div id="viewport"></div>
