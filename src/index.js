@@ -38,6 +38,8 @@ var scene,
 var cubesBag = [];
 var spheresBag = [];
 
+var sceneObjects = [];
+
 const initScene = () => {
   renderer = new WebGLRenderer({ antialias: true });
   renderer.setSize(windowSize.width, windowSize.height);
@@ -71,66 +73,23 @@ const initScene = () => {
   poke1.initAttackUI(poke2.addColor);
   poke2.initAttackUI(poke1.addColor);
 
-  scene.add(poke1.poke);
-  scene.add(poke2.poke);
+  scene.add(poke1.mesh);
+  scene.add(poke2.mesh);
+
+  sceneObjects.push(poke1);
+  sceneObjects.push(poke2);
 
   timeInterval = getNewTnterval();
   timeInit = Date.now();
 
-  requestAnimationFrame(render);
+  requestAnimationFrame(update);
 };
 
 const getNewTnterval = () => {
   return Math.floor(Math.random() * (TIME_MAX - TIME_MIN)) + TIME_MIN;
 };
 
-const getNewPosition = () => {
-  const x = Math.floor(Math.random() * (100 - 10)) - 50;
-  const y = Math.floor(Math.random() * (100 - 10)) - 50;
-  const z = Math.floor(Math.random() * (-5 + 5)) - 5;
-
-  return { x, y, z };
-};
-
-const removeCubesOOS = () => {
-  scene.children.forEach((cube) => {
-    if (cube.position.y < -100) {
-      scene.remove(cube);
-    }
-  });
-};
-
-const rotatingComposition = () => {
-  var orbitSpeed = Date.now() * 0.001;
-  var orbitDistance = 5;
-
-  // frontCube.position.set(
-  //   Math.cos(orbitSpeed) * orbitDistance,
-  //   0,
-  //   Math.sin(orbitSpeed) * orbitDistance
-  // );
-
-  // frontCube.rotation.set(newUniform.u_time.value, 50, 20);
-
-  // frontCube.lookAt(logo.position);
-
-  // backCube.position.set(
-  //   Math.cos(orbitSpeed + Math.PI) * orbitDistance,
-  //   0,
-  //   Math.sin(orbitSpeed + Math.PI) * orbitDistance
-  // );
-
-  // backCube.rotation.set(newUniform.u_time.value, 50, 20);
-
-  // backCube.lookAt(logo.position);
-
-  // midSphere2.rotation.set(45, newUniform.u_time.value * 2, 0);
-  // midSphere1.rotation.set(0, -newUniform.u_time.value * 2, 0);
-  // midSphere3.rotation.set(180, -newUniform.u_time.value * 2, 0);
-  // midSphere4.rotation.set(90, -newUniform.u_time.value * 2, 0);
-};
-
-const render = () => {
+const update = () => {
   timePassed = Date.now() - timeInit;
 
   if (timePassed > timeInterval) {
@@ -138,14 +97,10 @@ const render = () => {
     timeInit = Date.now();
     timeInterval = getNewTnterval();
   }
-
-  // rotatingComposition();
-  // removeCubesOOS(); //remove cubes out of sight
-
-  // newUniform.u_time.value += 0.02;
   renderer.render(scene, camera); // render the scene
+  sceneObjects.forEach((object) => object.update());
 
-  requestAnimationFrame(render);
+  requestAnimationFrame(update);
 };
 
 const dropCube = (position) => {
@@ -259,6 +214,52 @@ const addText = () => {
     mesh.add(wireframe);
     scene.add(mesh);
   });
+};
+
+const removeCubesOOS = () => {
+  scene.children.forEach((cube) => {
+    if (cube.position.y < -100) {
+      scene.remove(cube);
+    }
+  });
+};
+
+const rotatingComposition = () => {
+  var orbitSpeed = Date.now() * 0.001;
+  var orbitDistance = 5;
+
+  // frontCube.position.set(
+  //   Math.cos(orbitSpeed) * orbitDistance,
+  //   0,
+  //   Math.sin(orbitSpeed) * orbitDistance
+  // );
+
+  // frontCube.rotation.set(newUniform.u_time.value, 50, 20);
+
+  // frontCube.lookAt(logo.position);
+
+  // backCube.position.set(
+  //   Math.cos(orbitSpeed + Math.PI) * orbitDistance,
+  //   0,
+  //   Math.sin(orbitSpeed + Math.PI) * orbitDistance
+  // );
+
+  // backCube.rotation.set(newUniform.u_time.value, 50, 20);
+
+  // backCube.lookAt(logo.position);
+
+  // midSphere2.rotation.set(45, newUniform.u_time.value * 2, 0);
+  // midSphere1.rotation.set(0, -newUniform.u_time.value * 2, 0);
+  // midSphere3.rotation.set(180, -newUniform.u_time.value * 2, 0);
+  // midSphere4.rotation.set(90, -newUniform.u_time.value * 2, 0);
+};
+
+const getNewPosition = () => {
+  const x = Math.floor(Math.random() * (100 - 10)) - 50;
+  const y = Math.floor(Math.random() * (100 - 10)) - 50;
+  const z = Math.floor(Math.random() * (-5 + 5)) - 5;
+
+  return { x, y, z };
 };
 
 window.onload = initScene();

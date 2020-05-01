@@ -3,9 +3,9 @@ import THREE from "three";
 const pokeTypes = [
   {
     type: "red",
-    r: 255,
-    g: 255,
-    b: 255,
+    r: 125,
+    g: 125,
+    b: 125,
   },
   {
     type: "green",
@@ -53,9 +53,19 @@ const combatPositions = [
 ];
 
 export function Pokemon(_playerNumber) {
+  let pokemon = {};
+
+  pokemon.state = {
+    init: false,
+    animating: false,
+    playerNumber: _playerNumber,
+  };
+
+  pokemon.childrenObjects = [];
+
   let playerNumber = _playerNumber;
   let indicator = document.getElementById("indicator");
-  let stats = {
+  pokemon.stats = {
     animating: false,
     myTurn: true,
     colors: {
@@ -66,69 +76,79 @@ export function Pokemon(_playerNumber) {
   };
 
   let startingColor = new THREE.Color(
-    `rgb(${stats.colors.r}, ${stats.colors.g}, ${stats.colors.b})`
+    `rgb(${pokemon.stats.colors.r}, ${pokemon.stats.colors.g}, ${pokemon.stats.colors.b})`
   );
 
   let geometry = new THREE.BoxGeometry(2, 3, 3);
   let material = new THREE.MeshBasicMaterial({ color: startingColor });
-  let poke = new THREE.Mesh(geometry, material);
+  pokemon.mesh = new THREE.Mesh(geometry, material);
 
-  let geo = new THREE.EdgesGeometry(poke.geometry); // or WireframeGeometry
+  let geo = new THREE.EdgesGeometry(pokemon.mesh.geometry); // or WireframeGeometry
   let mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-  let pokeWireframe = new THREE.LineSegments(geo, mat);
+  let wireframe = new THREE.LineSegments(geo, mat);
 
   let geom = new THREE.CircleGeometry(5, 32);
   let mate = new THREE.MeshBasicMaterial({ color: 0x666666 });
   let circle = new THREE.Mesh(geom, mate);
 
-  poke.add(circle);
-  poke.add(pokeWireframe);
+  pokemon.mesh.add(circle);
+  pokemon.mesh.add(wireframe);
 
   circle.rotation.set(-1.3, 0, 0);
   circle.position.set(0, -2, 0);
 
-  poke.position.set(
+  pokemon.mesh.position.set(
     combatPositions[playerNumber - 1].position.x,
     combatPositions[playerNumber - 1].position.y,
     combatPositions[playerNumber - 1].position.z
   );
-  poke.rotation.set(
+  pokemon.mesh.rotation.set(
     combatPositions[playerNumber - 1].rotation.x,
     combatPositions[playerNumber - 1].rotation.y,
     combatPositions[playerNumber - 1].rotation.z
   );
 
-  initPalette(playerNumber);
+  drawCircleOnCanvas();
+  addColorSphere(pokemon, "red");
 
   //set new color
-  const addColor = (colorDamage) => {
-    stats.colors = {
+  pokemon.addColor = (colorDamage) => {
+    pokemon.stats.colors = {
       r:
-        stats.colors.r - colorDamage.r < 0 ? 0 : stats.colors.r - colorDamage.r,
+        pokemon.stats.colors.r - colorDamage.r < 0
+          ? 0
+          : pokemon.stats.colors.r - colorDamage.r,
       g:
-        stats.colors.g - colorDamage.g < 0 ? 0 : stats.colors.g - colorDamage.g,
+        pokemon.stats.colors.g - colorDamage.g < 0
+          ? 0
+          : pokemon.stats.colors.g - colorDamage.g,
       b:
-        stats.colors.b - colorDamage.b < 0 ? 0 : stats.colors.b - colorDamage.b,
+        pokemon.stats.colors.b - colorDamage.b < 0
+          ? 0
+          : pokemon.stats.colors.b - colorDamage.b,
     };
 
     let newColor = new THREE.Color(
-      `rgb(${stats.colors.r}, ${stats.colors.g}, ${stats.colors.b})`
+      `rgb(${pokemon.stats.colors.r}, ${pokemon.stats.colors.g}, ${pokemon.stats.colors.b})`
     );
 
-    const position = rgb2xy(stats.colors.r, stats.colors.g, stats.colors.b);
-    console.log(position[0], position[1]);
+    const position = rgb2xy(
+      pokemon.stats.colors.r,
+      pokemon.stats.colors.g,
+      pokemon.stats.colors.b
+    );
 
-    indicator.style.left = -position[0] + 50 + "px";
-    indicator.style.top = -position[1] + 50 + "px";
+    indicator.style.left = -position.x + 50 + "px";
+    indicator.style.top = -position.y + 50 + "px";
     //DEBUG
     // let rgb = [colorDamage.r, colorDamage.g, colorDamage.b];
     // let hsv = rgb2hsv(rgb[0], rgb[1], rgb[2]);
     // console.log(rgb, hsv, hsv.h, hsv2rgb(hsv.h, hsv.s / 100, hsv.v / 100));
 
-    poke.material.color.set(newColor);
+    pokemon.mesh.material.color.set(newColor);
   };
 
-  const initAttackUI = (takeDamage) => {
+  pokemon.initAttackUI = (takeDamage) => {
     let menu = document.getElementById(`player${playerNumber}_Label`);
     combatPositions[playerNumber - 1].attacks.forEach((attack) => {
       let attackBtn = document.createElement("BUTTON");
@@ -140,10 +160,53 @@ export function Pokemon(_playerNumber) {
       menu.appendChild(attackBtn);
     });
   };
-  drawCircleOnCanvas();
-  return { poke, stats, addColor, initAttackUI };
+
+  pokemon.init = () => {};
+
+  pokemon.update = () => {
+    pokemon.childrenObjects.forEach((children) => children.update());
+  };
+
+  return pokemon;
 }
 
+export function addColorSphere(parent, color) {
+  let sphere = {
+    state: {
+      initing: true,
+      rotating: true,
+      attacking: false,
+    },
+  };
+  let _color = color ? color : { r: 100, g: 100, b: 100 };
+
+  // Box
+  let geometry = new THREE.SphereGeometry(0.5, 32, 32);
+  let sphereColor = new THREE.Color(
+    `rgb(${_color.r}, ${_color.g}, ${_color.b})`
+  );
+  let material = new THREE.MeshBasicMaterial({ color: sphereColor });
+  //material.side = THREE.DoubleSide;
+
+  sphere.mesh = new THREE.Mesh(geometry, material);
+
+  sphere.mesh.position.set(0, 0, 0);
+
+  let pivot = new THREE.Group();
+  pivot.add(sphere.mesh);
+  parent.mesh.add(pivot);
+
+  sphere.update = () => {
+    if (sphere.state.initing == true && sphere.mesh.position.z < 4) {
+      sphere.mesh.position.z += 0.1;
+    }
+    if (sphere.state.rotating == true) {
+      pivot.rotation.y += 0.1;
+    }
+  };
+
+  parent.childrenObjects.push(sphere);
+}
 const initPalette = (playerNumber) => {
   var app = {};
 
@@ -190,7 +253,7 @@ const rgb2xy = (r, g, b) => {
 
   let theta = deg2rad(hsv.h);
 
-  let distance2center = (hsv.s / 100) * radius;
+  let distance2center = hsv.s * radius;
 
   // console.log(
   //   "hsv: ",
@@ -199,11 +262,9 @@ const rgb2xy = (r, g, b) => {
   //   "distance2center: " + distance2center
   // );
 
-  let position = polar2xy(distance2center, theta).map((coord) =>
-    Math.floor(coord)
-  );
+  let position = polar2xy(distance2center, theta);
 
-  return position;
+  return { x: Math.floor(position.x), y: Math.floor(position.y) };
 };
 
 const drawCircleOnCanvas = () => {
@@ -239,17 +300,6 @@ const drawCircleOnCanvas = () => {
 
         let [red, green, blue] = hsv2rgb(hue, saturation, value);
 
-        // console.log(
-        //   "Position",
-        //   rgb2xy(
-        //     hsv2rgb(hue, saturation, value)[0],
-        //     hsv2rgb(hue, saturation, value)[1],
-        //     hsv2rgb(hue, saturation, value)[2]
-        //   ),
-        //   "X: " + x,
-        //   "Y: " + y
-        // );
-
         let alpha = 255;
 
         data[index] = red;
@@ -284,17 +334,17 @@ function deg2rad(degrees) {
 }
 
 //distance to center, theta in radians
+//return {x:, y:}
 function polar2xy(distance, theta) {
   // Convert polar to cartesian
-  let x = distance * Math.cos(theta);
-  let y = distance * Math.sin(theta);
-  return [x, y];
+  let posX = distance * Math.cos(theta);
+  let posY = distance * Math.sin(theta);
+  return { x: posX, y: posY };
 }
 
 // hue in range [0, 360]
 // saturation, value in range [0,1]
 // return [r,g,b] each in range [0,255]
-// See: https://en.wikipedia.org/wiki/HSL_and_HSV#From_HSV
 function hsv2rgb(hue, saturation, value) {
   let chroma = value * saturation;
   let hue1 = hue / 60;
@@ -319,6 +369,8 @@ function hsv2rgb(hue, saturation, value) {
   return [255 * r, 255 * g, 255 * b];
 }
 
+// r,g,b in range [0, 255]
+// return {h: deg ,s: [0, 1],v: [0, 1]}
 function rgb2hsv(r, g, b) {
   let rabs, gabs, babs, rr, gg, bb, h, s, v, diff, diffc, percentRoundFn;
   rabs = r / 255;
@@ -350,7 +402,7 @@ function rgb2hsv(r, g, b) {
   }
   return {
     h: Math.round(h * 360),
-    s: percentRoundFn(s * 100),
-    v: percentRoundFn(v * 100),
+    s: percentRoundFn(s),
+    v: percentRoundFn(v),
   };
 }
