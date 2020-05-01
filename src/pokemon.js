@@ -5,12 +5,12 @@ const pokeTypes = [
     type: "red",
     r: 125,
     g: 125,
-    b: 125,
+    b: 255,
   },
   {
     type: "green",
     r: 40,
-    g: 40,
+    g: 255,
     b: 40,
   },
 ];
@@ -29,10 +29,10 @@ const combatPositions = [
       z: 0.3,
     },
     attacks: [
-      { type: "Attack", damage: { r: 0, g: 20, b: 0 } },
-      { type: "Attack", damage: { r: 0, g: 0, b: 40 } },
-      { type: "Recharge", damage: { r: 0, g: 0, b: 0 } },
-      { type: "Discharge", damage: { r: 0, g: 0, b: 0 } },
+      { label: "Green", type: "Attack", damage: { r: 0, g: 20, b: 0 } },
+      { label: "Blue", type: "Attack", damage: { r: 0, g: 0, b: 40 } },
+      { label: "Focus", type: "Recharge", damage: { r: 0, g: 0, b: 0 } },
+      { label: "Release", type: "Discharge", damage: { r: 0, g: 0, b: 0 } },
     ],
   },
   {
@@ -48,8 +48,10 @@ const combatPositions = [
       z: 0.3,
     },
     attacks: [
-      { type: "red", damage: { r: 40, g: 0, b: 0 } },
-      { type: "green", damage: { r: 0, g: 20, b: 0 } },
+      { label: "Red", type: "Attack", damage: { r: 40, g: 0, b: 0 } },
+      { label: "Green", type: "Attack", damage: { r: 0, g: 20, b: 0 } },
+      { label: "Focus", type: "Recharge", damage: { r: 0, g: 0, b: 0 } },
+      { label: "Release", type: "Discharge", damage: { r: 0, g: 0, b: 0 } },
     ],
   },
 ];
@@ -73,6 +75,11 @@ export function addPokemon(_playerNumber) {
       r: pokeTypes[playerNumber - 1].r,
       g: pokeTypes[playerNumber - 1].g,
       b: pokeTypes[playerNumber - 1].b,
+    },
+    focusColor: {
+      r: 0,
+      g: 0,
+      b: 0,
     },
   };
 
@@ -115,17 +122,17 @@ export function addPokemon(_playerNumber) {
   pokemon.addColor = (colorDamage) => {
     pokemon.stats.colors = {
       r:
-        pokemon.stats.colors.r - colorDamage.r < 0
-          ? 0
-          : pokemon.stats.colors.r - colorDamage.r,
+        pokemon.stats.colors.r + colorDamage.r > 255
+          ? 255
+          : pokemon.stats.colors.r + colorDamage.r,
       g:
-        pokemon.stats.colors.g - colorDamage.g < 0
-          ? 0
-          : pokemon.stats.colors.g - colorDamage.g,
+        pokemon.stats.colors.g + colorDamage.g > 255
+          ? 255
+          : pokemon.stats.colors.g + colorDamage.g,
       b:
-        pokemon.stats.colors.b - colorDamage.b < 0
-          ? 0
-          : pokemon.stats.colors.b - colorDamage.b,
+        pokemon.stats.colors.b + colorDamage.b > 255
+          ? 255
+          : pokemon.stats.colors.b + colorDamage.b,
     };
 
     let newColor = new THREE.Color(
@@ -140,10 +147,6 @@ export function addPokemon(_playerNumber) {
 
     indicator.style.left = circleCanvas.offsetLeft - position.x + 50 + "px";
     indicator.style.top = circleCanvas.offsetTop - position.y + 50 + "px";
-    //DEBUG
-    // let rgb = [colorDamage.r, colorDamage.g, colorDamage.b];
-    // let hsv = rgb2hsv(rgb[0], rgb[1], rgb[2]);
-    // console.log(rgb, hsv, hsv.h, hsv2rgb(hsv.h, hsv.s / 100, hsv.v / 100));
 
     pokemon.mesh.material.color.set(newColor);
   };
@@ -153,7 +156,7 @@ export function addPokemon(_playerNumber) {
     indicator = document.getElementById(`slot${playerNumber}_indicator`);
     combatPositions[playerNumber - 1].attacks.forEach((attack) => {
       let attackBtn = document.createElement("BUTTON");
-      attackBtn.innerHTML = attack.type;
+      attackBtn.innerHTML = attack.label;
       attackBtn.style.backgroundColor = rgbToHex(attack.damage);
       attackBtn.id = "btn";
 
@@ -210,6 +213,7 @@ export function addColorSphere(_parent, color) {
       dead: false,
     },
   };
+  let speed2target = {};
   let _color = color ? color : { r: 100, g: 100, b: 100 };
 
   // Box
@@ -231,6 +235,10 @@ export function addColorSphere(_parent, color) {
   _parent.childrenObjects.push(sphere);
 
   sphere.update = () => {
+    if (sphere.state.dead) {
+      return;
+    }
+
     if (sphere.state.initing && sphere.mesh.position.z < 4) {
       sphere.mesh.position.z += 0.1;
     } else {
@@ -239,34 +247,54 @@ export function addColorSphere(_parent, color) {
 
     if (sphere.state.rotating && !sphere.state.attacking) {
       pivot.rotation.y += 0.1;
-    } else if (sphere.state.attacking) {
-      sphere.move(0.2);
+    } else if (sphere.state.attacking && !sphere.state.exploding) {
+      sphere.move(0.5);
+    }
+
+    if (sphere.state.exploding) {
+      _parent.opponent.addColor(_color);
+      sphere.state.dead = true;
     }
   };
 
-  sphere.move = (speed) => {
+  sphere.move = (speedIndex) => {
     let error = 0.1;
     reparentObject3D(sphere.mesh, _parent.opponent.mesh);
 
+    if (!speed2target.x) {
+      let max = Math.max(
+        Math.abs(sphere.mesh.position.x),
+        Math.abs(sphere.mesh.position.y),
+        Math.abs(sphere.mesh.position.z)
+      );
+      speed2target.x = (Math.abs(sphere.mesh.position.x) * speedIndex) / max;
+      speed2target.y = (Math.abs(sphere.mesh.position.y) * speedIndex) / max;
+      speed2target.z = (Math.abs(sphere.mesh.position.z) * speedIndex) / max;
+    }
+
     if (sphere.mesh.position.x > error) {
-      sphere.mesh.position.x -= speed;
+      sphere.mesh.position.x -= speed2target.x;
     } else if (sphere.mesh.position.x < -error) {
-      sphere.mesh.position.x += speed;
+      sphere.mesh.position.x += speed2target.x;
     } else {
+      sphere.state.exploding = true;
     }
+
     if (sphere.mesh.position.y > +error) {
-      sphere.mesh.position.y -= speed;
+      sphere.mesh.position.y -= speed2target.y;
     } else if (sphere.mesh.position.y < -error) {
-      sphere.mesh.position.y += speed;
+      sphere.mesh.position.y += speed2target.y;
     } else {
+      sphere.state.exploding = true;
     }
+
     if (sphere.mesh.position.z > +error) {
-      sphere.mesh.position.z -= speed;
+      sphere.mesh.position.z -= speed2target.z;
     } else if (sphere.mesh.position.z < -error) {
-      sphere.mesh.position.z += speed;
+      sphere.mesh.position.z += speed2target.z;
     } else {
+      sphere.state.exploding = true;
     }
-    //reparentObject3D(sphere.mesh, pivot);
   };
 }
 
