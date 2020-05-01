@@ -161,8 +161,13 @@ export function addPokemon(_playerNumber) {
       attackBtn.id = "btn";
 
       attackBtn.onclick = () => {
+        console.log("Attack type: " + attack.type);
         if (attack.type == "Recharge") {
           addColorSphere(pokemon, { r: 25, g: 25, b: 25 });
+        } else if (attack.type == "Discharge") {
+          pokemon.childrenObjects.forEach(
+            (children) => (children.state.attacking = true)
+          );
         } else {
           pokemon.opponent.addColor(attack.damage);
         }
@@ -183,12 +188,14 @@ export function addPokemon(_playerNumber) {
   return pokemon;
 }
 
-export function addColorSphere(parent, color) {
+export function addColorSphere(_parent, color) {
   let sphere = {
     state: {
       initing: true,
       rotating: true,
       attacking: false,
+      exploding: false,
+      dead: false,
     },
   };
   let _color = color ? color : { r: 100, g: 100, b: 100 };
@@ -207,9 +214,9 @@ export function addColorSphere(parent, color) {
 
   let pivot = new THREE.Group();
   pivot.add(sphere.mesh);
-  parent.mesh.add(pivot);
+  _parent.mesh.add(pivot);
 
-  parent.childrenObjects.push(sphere);
+  _parent.childrenObjects.push(sphere);
 
   sphere.update = () => {
     if (sphere.state.initing && sphere.mesh.position.z < 4) {
@@ -221,15 +228,40 @@ export function addColorSphere(parent, color) {
     if (sphere.state.rotating && !sphere.state.attacking) {
       pivot.rotation.y += 0.1;
     } else if (sphere.state.attacking) {
+      sphere.move(0.2);
     }
   };
 
-  sphere.move = (speed, currentPos, desiredPos) => {
-    var d = mesh.position.x - mesh2.position.x;
-    if (mesh.position.x > mesh2.position.x) {
-      mesh.position.x -= Math.min(speed, d);
+  sphere.move = (speed) => {
+    let error = 0.1;
+    reparentObject3D(sphere.mesh, _parent.opponent.mesh);
+
+    if (sphere.mesh.position.x > error) {
+      sphere.mesh.position.x -= speed;
+    } else if (sphere.mesh.position.x < -error) {
+      sphere.mesh.position.x += speed;
+    } else {
     }
+    if (sphere.mesh.position.y > +error) {
+      sphere.mesh.position.y -= speed;
+    } else if (sphere.mesh.position.y < -error) {
+      sphere.mesh.position.y += speed;
+    } else {
+    }
+    if (sphere.mesh.position.z > +error) {
+      sphere.mesh.position.z -= speed;
+    } else if (sphere.mesh.position.z < -error) {
+      sphere.mesh.position.z += speed;
+    } else {
+    }
+    //reparentObject3D(sphere.mesh, pivot);
   };
+}
+
+function reparentObject3D(subject, newParent) {
+  subject.matrix.copy(subject.matrixWorld);
+  subject.applyMatrix(new THREE.Matrix4().getInverse(newParent.matrixWorld));
+  newParent.add(subject);
 }
 
 const initPalette = (playerNumber) => {
