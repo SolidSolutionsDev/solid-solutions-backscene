@@ -378,44 +378,6 @@ function reparentObject3D(subject, newParent) {
   newParent.add(subject);
 }
 
-const initPalette = (playerNumber) => {
-  var app = {};
-
-  app.canvas = document.getElementById(`color-palette_${playerNumber}`);
-  app.colorctx = app.canvas.getContext("2d");
-
-  // Build Color palette
-  app.buildColorPalette = function () {
-    var gradient = app.colorctx.createLinearGradient(
-      0,
-      0,
-      app.colorctx.canvas.width,
-      0
-    );
-
-    // Create color gradient
-    gradient.addColorStop(0, "rgb(255,   0,   0)");
-    gradient.addColorStop(0.15, "rgb(255,   0, 255)");
-    gradient.addColorStop(0.33, "rgb(0,     0, 255)");
-    gradient.addColorStop(0.49, "rgb(0,   255, 255)");
-    gradient.addColorStop(0.67, "rgb(0,   255,   0)");
-    gradient.addColorStop(0.84, "rgb(255, 255,   0)");
-    gradient.addColorStop(1, "rgb(255,   0,   0)");
-
-    // Apply gradient to canvas
-    app.colorctx.fillStyle = gradient;
-    app.colorctx.fillRect(
-      0,
-      0,
-      app.colorctx.canvas.width,
-      app.colorctx.canvas.height
-    );
-  };
-
-  app.buildColorPalette();
-
-  return app;
-};
 
 const drawCircleOnCanvas = (_playerNumber) => {
   let circleCanvas = document.getElementById(
