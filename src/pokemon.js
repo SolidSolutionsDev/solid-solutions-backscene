@@ -20,11 +20,11 @@ const combatPositions = [
     player: "one",
     position: {
       x: -5,
-      y: -3,
+      y: -2,
       z: 25,
     },
     rotation: {
-      x: 0.1,
+      x: 0.3,
       y: -0.4,
       z: 0.3,
     },
@@ -38,12 +38,12 @@ const combatPositions = [
   {
     player: "two",
     position: {
-      x: 8,
-      y: 4,
+      x: 6,
+      y: 6,
       z: 10,
     },
     rotation: {
-      x: 0.1,
+      x: 0.4,
       y: -0.4,
       z: 0.3,
     },
@@ -95,7 +95,7 @@ export function addPokemon(_playerNumber) {
   let mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
   let wireframe = new THREE.LineSegments(geo, mat);
 
-  let geom = new THREE.CircleGeometry(5, 32);
+  let geom = new THREE.CircleGeometry(4, 32);
   let mate = new THREE.MeshBasicMaterial({ color: 0x666666 });
   let circle = new THREE.Mesh(geom, mate);
 

@@ -2,17 +2,14 @@
 <html>
   <head>
     <title>Color Fighter</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
-    <div class="slot_UI" id="slot1">
-      <div class="attacks" id="slot1_attacks"></div>
-      <div class="colorCanvas">
-        <canvas id="slot1_colorCanvas" width="100px" height="100px"></canvas>
-        <div class="indicator" id="slot1_indicator">O</div>
-      </div>
-    </div>
-    <div class="slot_UI" id="slot2">
+    <div class="player_UI" id="slot2">
       <div class="attacks" id="slot2_attacks"></div>
       <div class="colorCanvas">
         <canvas id="slot2_colorCanvas" width="100px" height="100px"></canvas>
@@ -21,5 +18,21 @@
     </div>
 
     <div id="viewport"></div>
+
+    <div class="player_UI" id="slot1">
+      <div class="attacks" id="slot1_attacks"></div>
+      <div class="colorCanvas">
+        <canvas id="slot1_colorCanvas" width="100px" height="100px"></canvas>
+        <div class="indicator" id="slot1_indicator">O</div>
+      </div>
+    </div>
+
+    <div class="system_UI">
+      SYSTEM
+      <div id="dialog_box">
+        <div id="first_line"></div>
+        <div id="second_line"></div>
+      </div>
+    </div>
   </body>
 </html>

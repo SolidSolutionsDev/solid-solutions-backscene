@@ -1,4 +1,5 @@
 import THREE, { WebGLRenderer, PerspectiveCamera } from "three";
+import theater from "theaterjs";
 import fragmentShader from "../src/Utils/logo.glsl";
 import { addPokemon } from "./pokemon";
 
@@ -8,8 +9,8 @@ const TIME_MAX = 2000;
 const TIME_MIN = 500;
 
 const windowSize = {
-  width: 860,
-  height: 640,
+  width: 960,
+  height: 720,
 };
 
 var scene,
