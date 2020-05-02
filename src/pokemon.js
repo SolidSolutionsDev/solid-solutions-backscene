@@ -15,9 +15,15 @@ const pokeTypes = [
   },
 ];
 
+const awesomeLines = [
+  "Awesome!",
+  "Sincerely, I was not expecting that!",
+  "Things are just starting to warm!.",
+];
+
 const combatPositions = [
   {
-    player: "one",
+    name: "GREAT CUBE",
     position: {
       x: -3,
       y: -2,
@@ -29,14 +35,34 @@ const combatPositions = [
       z: 0.4,
     },
     attacks: [
-      { label: "Green", type: "Attack", damage: { r: 0, g: 20, b: 0 } },
-      { label: "Blue", type: "Attack", damage: { r: 0, g: 0, b: 40 } },
-      { label: "Focus", type: "Recharge", damage: { r: 0, g: 0, b: 0 } },
-      { label: "Release", type: "Discharge", damage: { r: 0, g: 0, b: 0 } },
+      {
+        label: "Green",
+        type: "Attack",
+        damage: { r: 0, g: 20, b: 0 },
+        dialog: " moves onto the enemy!",
+      },
+      {
+        label: "Blue",
+        type: "Attack",
+        damage: { r: 0, g: 0, b: 40 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: "Focus",
+        type: "Recharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " is feeling a surge of color!",
+      },
+      {
+        label: "Release",
+        type: "Discharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " realeases every color on the enemy!",
+      },
     ],
   },
   {
-    player: "two",
+    name: "BEAUTIFUL CUBE",
     position: {
       x: 6,
       y: 6,
@@ -48,29 +74,51 @@ const combatPositions = [
       z: 0.3,
     },
     attacks: [
-      { label: "Red", type: "Attack", damage: { r: 40, g: 0, b: 0 } },
-      { label: "Green", type: "Attack", damage: { r: 0, g: 20, b: 0 } },
-      { label: "Focus", type: "Recharge", damage: { r: 0, g: 0, b: 0 } },
-      { label: "Release", type: "Discharge", damage: { r: 0, g: 0, b: 0 } },
+      {
+        label: "Red",
+        type: "Attack",
+        damage: { r: 40, g: 0, b: 0 },
+        dialog: " hmmm hmmm hmmm",
+      },
+      {
+        label: "Green",
+        type: "Attack",
+        damage: { r: 0, g: 20, b: 0 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: "Focus",
+        type: "Recharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " is feeling a surge of color!",
+      },
+      {
+        label: "Release",
+        type: "Discharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " realeases every color on the enemy!",
+      },
     ],
   },
 ];
 
-export function addPokemon(_playerNumber) {
+export function addPokemon(_playerNumber, gameProps) {
   let pokemon = {};
 
   pokemon.state = {
     init: false,
     animating: false,
     playerNumber: _playerNumber,
+    myTurn: true,
   };
+
   let menu, indicator, circleCanvas;
   pokemon.childrenObjects = [];
 
   let playerNumber = _playerNumber;
   pokemon.stats = {
-    animating: false,
-    myTurn: true,
+    name: combatPositions[playerNumber - 1].name,
+
     colors: {
       r: pokeTypes[playerNumber - 1].r,
       g: pokeTypes[playerNumber - 1].g,
@@ -154,14 +202,15 @@ export function addPokemon(_playerNumber) {
   pokemon.initAttackUI = () => {
     menu = document.getElementById(`slot${playerNumber}_attacks`);
     indicator = document.getElementById(`slot${playerNumber}_indicator`);
+
     combatPositions[playerNumber - 1].attacks.forEach((attack) => {
-      let attackBtn = document.createElement("BUTTON");
+      let attackBtn = document.createElement("button");
       attackBtn.innerHTML = attack.label;
       attackBtn.style.backgroundColor = rgbToHex(attack.damage);
       attackBtn.id = "btn";
 
       attackBtn.onclick = () => {
-        console.log("Attack type: " + attack.type);
+        pokemon.addDialog(attack.dialog);
         if (attack.type == "Recharge") {
           addColorSphere(pokemon, { r: 25, g: 25, b: 25 });
         } else if (attack.type == "Discharge") {
@@ -174,6 +223,21 @@ export function addPokemon(_playerNumber) {
       };
       menu.appendChild(attackBtn);
     });
+  };
+
+  pokemon.addDialog = (text) => {
+    gameProps.theater.addScene(
+      `second_line:`,
+      -20,
+      `first_line:`,
+      -20,
+      `first_line: ${pokemon.stats.name} ${text}`,
+      `second_line: ${
+        awesomeLines[Math.floor(Math.random() * awesomeLines.length)]
+      }`
+    );
+    // .on("sequence:end", function () {
+    // });
   };
 
   pokemon.initColorCicleUI = () => {
@@ -197,7 +261,14 @@ export function addPokemon(_playerNumber) {
   };
 
   pokemon.update = () => {
-    pokemon.childrenObjects.forEach((children) => children.update());
+    pokemon.childrenObjects.forEach((children, index, arr) => {
+      if (children.state.dead == true) {
+        arr.splice(index, 1);
+        pokemon.mesh.remove(children._pivot);
+      } else {
+        children.update();
+      }
+    });
   };
 
   return pokemon;
@@ -228,9 +299,9 @@ export function addColorSphere(_parent, color) {
 
   sphere.mesh.position.set(0, 0, 0);
 
-  let pivot = new THREE.Group();
-  pivot.add(sphere.mesh);
-  _parent.mesh.add(pivot);
+  sphere._pivot = new THREE.Group();
+  sphere._pivot.add(sphere.mesh);
+  _parent.mesh.add(sphere._pivot);
 
   _parent.childrenObjects.push(sphere);
 
@@ -246,7 +317,7 @@ export function addColorSphere(_parent, color) {
     }
 
     if (sphere.state.rotating && !sphere.state.attacking) {
-      pivot.rotation.y += 0.1;
+      sphere._pivot.rotation.y += 0.1;
     } else if (sphere.state.attacking && !sphere.state.exploding) {
       sphere.move(0.5);
     }
@@ -277,6 +348,7 @@ export function addColorSphere(_parent, color) {
     } else if (sphere.mesh.position.x < -error) {
       sphere.mesh.position.x += speed2target.x;
     } else {
+      console.log("collidded in x");
       sphere.state.exploding = true;
     }
 
@@ -285,6 +357,7 @@ export function addColorSphere(_parent, color) {
     } else if (sphere.mesh.position.y < -error) {
       sphere.mesh.position.y += speed2target.y;
     } else {
+      console.log("collidded in y");
       sphere.state.exploding = true;
     }
 
@@ -293,6 +366,7 @@ export function addColorSphere(_parent, color) {
     } else if (sphere.mesh.position.z < -error) {
       sphere.mesh.position.z += speed2target.z;
     } else {
+      console.log("collidded in z");
       sphere.state.exploding = true;
     }
   };

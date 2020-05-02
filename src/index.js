@@ -1,5 +1,5 @@
 import THREE, { WebGLRenderer, PerspectiveCamera } from "three";
-import theater from "theaterjs";
+import Theater from "theaterjs"; // {https://github.com/Zhouzi/TheaterJS
 import fragmentShader from "../src/Utils/logo.glsl";
 import { addPokemon } from "./pokemon";
 
@@ -27,6 +27,8 @@ var spheresBag = [];
 
 var sceneObjects = [];
 
+var gameProps = {};
+
 const initScene = () => {
   renderer = new WebGLRenderer({ antialias: true });
   renderer.setSize(windowSize.width, windowSize.height);
@@ -42,6 +44,29 @@ const initScene = () => {
     clicking = false;
   };
 
+  gameProps.theater = Theater({
+    minSpeed: {
+      erase: 1,
+      type: 80,
+    },
+
+    maxSpeed: {
+      erase: 1,
+      type: 450,
+    },
+  });
+  gameProps.theater
+    .addActor("first_line", { accuracy: 0.9, speed: 1.5 })
+    .addActor("second_line", { accuracy: 0.9, speed: 1.5 });
+  gameProps.availableActors = [
+    document.getElementById("first_line"),
+    document.getElementById("second_line"),
+  ];
+
+  // gameProps.theater.availableActors = [
+
+  // ];
+
   scene = new THREE.Scene();
   camera = new PerspectiveCamera(
     35,
@@ -54,8 +79,8 @@ const initScene = () => {
 
   scene.add(camera);
 
-  const poke1 = addPokemon(1);
-  const poke2 = addPokemon(2);
+  const poke1 = addPokemon(1, gameProps);
+  const poke2 = addPokemon(2, gameProps);
 
   poke1.init(poke2);
   poke2.init(poke1);

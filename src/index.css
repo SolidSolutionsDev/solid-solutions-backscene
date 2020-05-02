@@ -59,16 +59,40 @@ button:hover {
   z-index: 200;
 }
 
-.system_UI {
+#system_UI {
   position: absolute;
   color: #ffffff;
+  padding: 10px;
+  top: 600px;
+  left: 40px;
+}
+
+#system_label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border-style: double;
   border-color: aqua;
   border-width: 4px;
-  padding: 10px;
-  top: 620px;
-  left: 50px;
-  width: 860px;
-  height: 70px;
+  width: 100px;
+  height: 20px;
   background: black;
+}
+
+#system_dialog_box {
+  background: black;
+  border-style: double;
+  border-color: aqua;
+  border-width: 4px;
+  width: 860px;
+  height: 60px;
+  padding: 4px;
+}
+
+.dialog {
+  padding: 4px;
+}
+
+#second_line {
+  color: red;
 }
