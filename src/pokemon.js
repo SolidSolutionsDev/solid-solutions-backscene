@@ -19,14 +19,14 @@ const combatPositions = [
   {
     player: "one",
     position: {
-      x: -5,
+      x: -3,
       y: -2,
       z: 25,
     },
     rotation: {
-      x: 0.3,
+      x: 0.1,
       y: -0.4,
-      z: 0.3,
+      z: 0.4,
     },
     attacks: [
       { label: "Green", type: "Attack", damage: { r: 0, g: 20, b: 0 } },
@@ -43,7 +43,7 @@ const combatPositions = [
       z: 10,
     },
     rotation: {
-      x: 0.4,
+      x: 0.3,
       y: -0.4,
       z: 0.3,
     },
@@ -258,7 +258,7 @@ export function addColorSphere(_parent, color) {
   };
 
   sphere.move = (speedIndex) => {
-    let error = 0.1;
+    let error = 0.01;
     reparentObject3D(sphere.mesh, _parent.opponent.mesh);
 
     if (!speed2target.x) {
