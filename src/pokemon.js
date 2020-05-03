@@ -47,15 +47,21 @@ const combatPositions = [
     },
     attacks: [
       {
-        label: " Yellow",
+        label: ".",
         type: "absorb",
-        damage: { r: 255, g: 255, b: 0 },
-        dialog: " moves onto the enemy!",
+        damage: { r: 255, g: 0, b: 255 },
+        dialog: " hmmm hmmm hmmm",
       },
       {
-        label: "Blue",
-        type: "attack",
-        damage: { r: 0, g: 0, b: 40 },
+        label: ".",
+        type: "absorb",
+        damage: { r: 0, g: 255, b: 255 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 255, g: 255, b: 0 },
         dialog: " 'bytes' the enemy!",
       },
       {
@@ -86,15 +92,21 @@ const combatPositions = [
     },
     attacks: [
       {
-        label: " Pink",
+        label: ".",
         type: "absorb",
         damage: { r: 255, g: 0, b: 255 },
         dialog: " hmmm hmmm hmmm",
       },
       {
-        label: "Green",
-        type: "attack",
-        damage: { r: 0, g: 20, b: 0 },
+        label: ".",
+        type: "absorb",
+        damage: { r: 0, g: 255, b: 255 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 255, g: 255, b: 0 },
         dialog: " 'bytes' the enemy!",
       },
       {
