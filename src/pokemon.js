@@ -48,25 +48,25 @@ const combatPositions = [
     attacks: [
       {
         label: " Yellow",
-        type: "Recharge",
+        type: "absorb",
         damage: { r: 255, g: 255, b: 0 },
         dialog: " moves onto the enemy!",
       },
       {
         label: "Blue",
-        type: "Attack",
+        type: "attack",
         damage: { r: 0, g: 0, b: 40 },
         dialog: " 'bytes' the enemy!",
       },
       {
         label: "Focus",
-        type: "Recharge",
+        type: "recharge",
         damage: { r: 0, g: 0, b: 0 },
         dialog: " is feeling a surge of color!",
       },
       {
         label: "Release",
-        type: "Discharge",
+        type: "discharge",
         damage: { r: 0, g: 0, b: 0 },
         dialog: " realeases every color on the enemy!",
       },
@@ -87,25 +87,25 @@ const combatPositions = [
     attacks: [
       {
         label: " Pink",
-        type: "Recharge",
+        type: "absorb",
         damage: { r: 255, g: 0, b: 255 },
         dialog: " hmmm hmmm hmmm",
       },
       {
         label: "Green",
-        type: "Attack",
+        type: "attack",
         damage: { r: 0, g: 20, b: 0 },
         dialog: " 'bytes' the enemy!",
       },
       {
         label: "Focus",
-        type: "Recharge",
+        type: "recharge",
         damage: { r: 0, g: 0, b: 0 },
         dialog: " is feeling a surge of color!",
       },
       {
         label: "Release",
-        type: "Discharge",
+        type: "discharge",
         damage: { r: 0, g: 0, b: 0 },
         dialog: " realeases every color on the enemy!",
       },
@@ -247,7 +247,7 @@ export function addPokemon(_playerNumber, gameProps) {
 
       attackBtn.onclick = () => {
         pokemon.addDialog(attack.dialog);
-        if (attack.type == "Recharge") {
+        if (attack.type == "absorb") {
           addColorSphere(
             pokemon,
             attack.damage
@@ -256,7 +256,11 @@ export function addPokemon(_playerNumber, gameProps) {
             // ]
           );
           pokemon.opponent.removeColor(attack.damage);
-        } else if (attack.type == "Discharge") {
+        } else if (attack.type == "recharge") {
+          pokemon.childrenObjects.forEach(
+            (children) => (children.stats.size += 0.2)
+          );
+        } else if (attack.type == "discharge") {
           pokemon.childrenObjects.forEach(
             (children) => (children.state.attacking = true)
           );
@@ -328,13 +332,14 @@ export function addColorSphere(_parent, color) {
     },
     stats: {
       size: sphereOptions.startingSize,
+      currentSize: sphereOptions.startingSize,
     },
   };
   let speed2target = {};
   let _color = color ? color : { r: 100, g: 100, b: 100 };
 
   // Box
-  let geometry = new THREE.SphereGeometry(sphere.stats.size, 32, 32);
+  let geometry = new THREE.SphereGeometry(1, 32, 32);
   let sphereColor = new THREE.Color(
     `rgb(${_color.r}, ${_color.g}, ${_color.b})`
   );
@@ -342,6 +347,12 @@ export function addColorSphere(_parent, color) {
   //material.side = THREE.DoubleSide;
 
   sphere.mesh = new THREE.Mesh(geometry, material);
+
+  sphere.mesh.scale.set(
+    sphere.stats.size,
+    sphere.stats.size,
+    sphere.stats.size
+  );
 
   sphere.mesh.position.set(0, 0, 0);
 
@@ -354,6 +365,16 @@ export function addColorSphere(_parent, color) {
   sphere.update = () => {
     if (sphere.state.dead) {
       return;
+    }
+
+    if (sphere.stats.size > sphere.stats.currentSize) {
+      console.log(sphere.stats.size, sphere.stats.currentSize);
+      sphere.stats.currentSize += 0.01;
+      sphere.mesh.scale.set(
+        sphere.stats.currentSize,
+        sphere.stats.currentSize,
+        sphere.stats.currentSize
+      );
     }
 
     if (sphere.state.initing && sphere.mesh.position.z < 4) {
@@ -370,6 +391,11 @@ export function addColorSphere(_parent, color) {
 
     if (sphere.state.exploding) {
       _parent.opponent.addColor({
+        r: _color.r * sphere.stats.size,
+        g: _color.g * sphere.stats.size,
+        b: _color.b * sphere.stats.size,
+      });
+      console.log("Color added: ", {
         r: _color.r * sphere.stats.size,
         g: _color.g * sphere.stats.size,
         b: _color.b * sphere.stats.size,
