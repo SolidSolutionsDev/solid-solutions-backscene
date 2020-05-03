@@ -3,23 +3,34 @@ import THREE from "three";
 const pokeTypes = [
   {
     type: "red",
-    r: 125,
-    g: 125,
-    b: 255,
+    r: 200,
+    g: 200,
+    b: 40,
   },
   {
     type: "green",
     r: 40,
-    g: 255,
+    g: 200,
     b: 40,
   },
 ];
 
 const awesomeLines = [
-  "Awesome!",
-  "Sincerely, I was not expecting that!",
-  "Things are just starting to warm!.",
+  "Awesome! Just awesome.",
+  "Sincerely, I was not expecting that...",
+  "Things are just starting to warm up.",
+  "I think he will be back!",
+  "Just another ordinary day at the park",
 ];
+
+const sphereOptions = {
+  colors: [
+    { r: 255, g: 0, b: 255 },
+    { r: 0, g: 255, b: 255 },
+    { r: 255, g: 255, b: 25 },
+  ],
+  startingSize: 0.2,
+};
 
 const combatPositions = [
   {
@@ -36,9 +47,9 @@ const combatPositions = [
     },
     attacks: [
       {
-        label: "Green",
-        type: "Attack",
-        damage: { r: 0, g: 20, b: 0 },
+        label: " Yellow",
+        type: "Recharge",
+        damage: { r: 255, g: 255, b: 0 },
         dialog: " moves onto the enemy!",
       },
       {
@@ -75,9 +86,9 @@ const combatPositions = [
     },
     attacks: [
       {
-        label: "Red",
-        type: "Attack",
-        damage: { r: 40, g: 0, b: 0 },
+        label: " Pink",
+        type: "Recharge",
+        damage: { r: 255, g: 0, b: 255 },
         dialog: " hmmm hmmm hmmm",
       },
       {
@@ -164,9 +175,6 @@ export function addPokemon(_playerNumber, gameProps) {
     combatPositions[playerNumber - 1].rotation.z
   );
 
-  addColorSphere(pokemon, { r: 40, g: 0, b: 0 });
-
-  //set new color
   pokemon.addColor = (colorDamage) => {
     pokemon.stats.colors = {
       r:
@@ -183,9 +191,39 @@ export function addPokemon(_playerNumber, gameProps) {
           : pokemon.stats.colors.b + colorDamage.b,
     };
 
+    pokemon.updateColorIndicatorAndMesh();
+  };
+
+  pokemon.removeColor = (_colorDamage) => {
+    let colorDamage = {
+      r: Math.floor(_colorDamage.r * sphereOptions.startingSize * 0.5),
+      g: Math.floor(_colorDamage.g * sphereOptions.startingSize * 0.5),
+      b: Math.floor(_colorDamage.b * sphereOptions.startingSize * 0.5),
+    };
+
+    pokemon.stats.colors = {
+      r:
+        pokemon.stats.colors.r - colorDamage.r < 0
+          ? 0
+          : pokemon.stats.colors.r - colorDamage.r,
+      g:
+        pokemon.stats.colors.g - colorDamage.g < 0
+          ? 0
+          : pokemon.stats.colors.g - colorDamage.g,
+      b:
+        pokemon.stats.colors.b - colorDamage.b < 0
+          ? 0
+          : pokemon.stats.colors.b - colorDamage.b,
+    };
+
+    pokemon.updateColorIndicatorAndMesh();
+  };
+
+  pokemon.updateColorIndicatorAndMesh = () => {
     let newColor = new THREE.Color(
       `rgb(${pokemon.stats.colors.r}, ${pokemon.stats.colors.g}, ${pokemon.stats.colors.b})`
     );
+    pokemon.mesh.material.color.set(newColor);
 
     const position = rgb2xy(
       pokemon.stats.colors.r,
@@ -193,10 +231,8 @@ export function addPokemon(_playerNumber, gameProps) {
       pokemon.stats.colors.b
     );
 
-    indicator.style.left = circleCanvas.offsetLeft - position.x + 50 + "px";
+    indicator.style.left = circleCanvas.offsetLeft - 4 - position.x + 50 + "px";
     indicator.style.top = circleCanvas.offsetTop - position.y + 50 + "px";
-
-    pokemon.mesh.material.color.set(newColor);
   };
 
   pokemon.initAttackUI = () => {
@@ -212,7 +248,14 @@ export function addPokemon(_playerNumber, gameProps) {
       attackBtn.onclick = () => {
         pokemon.addDialog(attack.dialog);
         if (attack.type == "Recharge") {
-          addColorSphere(pokemon, { r: 25, g: 25, b: 25 });
+          addColorSphere(
+            pokemon,
+            attack.damage
+            // sphereOptions.colors[
+            //   Math.floor(Math.random() * sphereOptions.colors.length)
+            // ]
+          );
+          pokemon.opponent.removeColor(attack.damage);
         } else if (attack.type == "Discharge") {
           pokemon.childrenObjects.forEach(
             (children) => (children.state.attacking = true)
@@ -249,7 +292,7 @@ export function addPokemon(_playerNumber, gameProps) {
       pokemon.stats.colors.b
     );
 
-    indicator.style.left = circleCanvas.offsetLeft - position.x + 50 + "px";
+    indicator.style.left = circleCanvas.offsetLeft - 4 - position.x + 50 + "px";
     indicator.style.top = circleCanvas.offsetTop - position.y + 50 + "px";
   };
 
@@ -283,12 +326,15 @@ export function addColorSphere(_parent, color) {
       exploding: false,
       dead: false,
     },
+    stats: {
+      size: sphereOptions.startingSize,
+    },
   };
   let speed2target = {};
   let _color = color ? color : { r: 100, g: 100, b: 100 };
 
   // Box
-  let geometry = new THREE.SphereGeometry(0.5, 32, 32);
+  let geometry = new THREE.SphereGeometry(sphere.stats.size, 32, 32);
   let sphereColor = new THREE.Color(
     `rgb(${_color.r}, ${_color.g}, ${_color.b})`
   );
@@ -323,7 +369,11 @@ export function addColorSphere(_parent, color) {
     }
 
     if (sphere.state.exploding) {
-      _parent.opponent.addColor(_color);
+      _parent.opponent.addColor({
+        r: _color.r * sphere.stats.size,
+        g: _color.g * sphere.stats.size,
+        b: _color.b * sphere.stats.size,
+      });
       sphere.state.dead = true;
     }
   };
@@ -377,7 +427,6 @@ function reparentObject3D(subject, newParent) {
   subject.applyMatrix(new THREE.Matrix4().getInverse(newParent.matrixWorld));
   newParent.add(subject);
 }
-
 
 const drawCircleOnCanvas = (_playerNumber) => {
   let circleCanvas = document.getElementById(
