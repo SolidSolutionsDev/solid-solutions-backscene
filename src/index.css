@@ -59,6 +59,11 @@ button:hover {
 .indicator {
   position: absolute;
   z-index: 200;
+  height: 1px;
+  width: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background-color: transparent;
 }
 
