@@ -1,20 +1,5 @@
 import THREE from "three";
 
-const pokeTypes = [
-  {
-    type: "red",
-    r: 200,
-    g: 200,
-    b: 40,
-  },
-  {
-    type: "green",
-    r: 40,
-    g: 200,
-    b: 40,
-  },
-];
-
 const awesomeLines = [
   "Awesome! Just awesome.",
   "Sincerely, I was not expecting that...",
@@ -32,9 +17,14 @@ const sphereOptions = {
   startingSize: 0.2,
 };
 
-const combatPositions = [
+const pokeStats = [
   {
     name: "GREAT CUBE",
+    initColor: {
+      r: 200,
+      g: 200,
+      b: 40,
+    },
     position: {
       x: -3,
       y: -2,
@@ -80,6 +70,11 @@ const combatPositions = [
   },
   {
     name: "BEAUTIFUL CUBE",
+    initColor: {
+      r: 40,
+      g: 200,
+      b: 40,
+    },
     position: {
       x: 6,
       y: 6,
@@ -140,12 +135,12 @@ export function addPokemon(_playerNumber, gameProps) {
 
   let playerNumber = _playerNumber;
   pokemon.stats = {
-    name: combatPositions[playerNumber - 1].name,
+    name: pokeStats[playerNumber - 1].name,
 
     colors: {
-      r: pokeTypes[playerNumber - 1].r,
-      g: pokeTypes[playerNumber - 1].g,
-      b: pokeTypes[playerNumber - 1].b,
+      r: pokeStats[playerNumber - 1].initColor.r,
+      g: pokeStats[playerNumber - 1].initColor.g,
+      b: pokeStats[playerNumber - 1].initColor.b,
     },
     focusColor: {
       r: 0,
@@ -177,14 +172,14 @@ export function addPokemon(_playerNumber, gameProps) {
   circle.position.set(0, -2, 0);
 
   pokemon.mesh.position.set(
-    combatPositions[playerNumber - 1].position.x,
-    combatPositions[playerNumber - 1].position.y,
-    combatPositions[playerNumber - 1].position.z
+    pokeStats[playerNumber - 1].position.x,
+    pokeStats[playerNumber - 1].position.y,
+    pokeStats[playerNumber - 1].position.z
   );
   pokemon.mesh.rotation.set(
-    combatPositions[playerNumber - 1].rotation.x,
-    combatPositions[playerNumber - 1].rotation.y,
-    combatPositions[playerNumber - 1].rotation.z
+    pokeStats[playerNumber - 1].rotation.x,
+    pokeStats[playerNumber - 1].rotation.y,
+    pokeStats[playerNumber - 1].rotation.z
   );
 
   pokemon.addColor = (colorDamage) => {
@@ -251,7 +246,7 @@ export function addPokemon(_playerNumber, gameProps) {
     menu = document.getElementById(`slot${playerNumber}_attacks`);
     indicator = document.getElementById(`slot${playerNumber}_indicator`);
 
-    combatPositions[playerNumber - 1].attacks.forEach((attack) => {
+    pokeStats[playerNumber - 1].attacks.forEach((attack) => {
       let attackBtn = document.createElement("button");
       attackBtn.innerHTML = attack.label;
       attackBtn.style.backgroundColor = rgbToHex(attack.damage);
