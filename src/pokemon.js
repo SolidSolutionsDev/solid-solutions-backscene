@@ -260,8 +260,9 @@ export function addPokemon(_playerNumber, gameProps) {
         attackBtn.id = "btn";
 
         attackBtn.onclick = () => {
-          //add condition to let player click only on his turn
-          pokemon.startAttack(attack);
+          if (gameProps.state.playerTurn[_playerNumber - 1]) {
+            pokemon.startAttack(attack);
+          }
         };
         attacksMenu.appendChild(attackBtn);
       });
@@ -350,12 +351,18 @@ export function addPokemon(_playerNumber, gameProps) {
 
       if (pokemon.state.isBot) {
         console.log("im a bot and i will attack");
-        pokemon.startAttack(
-          pokeStats[_playerNumber - 1].attacks[0]
-          // Math.floor(
-          //   Math.random() * pokeStats[_playerNumber - 1].attacks.length
-          // )
-        );
+        let attackNumber = 0;
+
+        console.log("Size ", pokemon.childrenObjects.length);
+
+        if (pokemon.childrenObjects.length) {
+          attackNumber = Math.floor(
+            Math.random() * pokeStats[_playerNumber - 1].attacks.length
+          );
+        } else {
+          attackNumber = Math.floor(Math.random() * 3);
+        }
+        pokemon.startAttack(pokeStats[_playerNumber - 1].attacks[attackNumber]);
       }
     }
   };
