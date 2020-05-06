@@ -20,6 +20,7 @@ const sphereOptions = {
 const pokeStats = [
   {
     name: "GREAT CUBE",
+    isBot: false,
     initColor: {
       r: 200,
       g: 200,
@@ -70,6 +71,7 @@ const pokeStats = [
   },
   {
     name: "BEAUTIFUL CUBE",
+    isBot: true,
     initColor: {
       r: 40,
       g: 200,
@@ -123,20 +125,21 @@ const pokeStats = [
 export function addPokemon(_playerNumber, gameProps) {
   let pokemon = {};
 
+  let playerNumber = _playerNumber;
+
   pokemon.state = {
     init: false,
     animating: false,
-    playerNumber: _playerNumber,
+    playerNumber: playerNumber,
     myTurn: true,
+    isBot: pokeStats[playerNumber - 1].isBot,
   };
 
-  let menu, indicator, circleCanvas;
+  let attacksMenu, indicator, circleCanvas;
   pokemon.childrenObjects = [];
 
-  let playerNumber = _playerNumber;
   pokemon.stats = {
     name: pokeStats[playerNumber - 1].name,
-
     colors: {
       r: pokeStats[playerNumber - 1].initColor.r,
       g: pokeStats[playerNumber - 1].initColor.g,
@@ -232,6 +235,10 @@ export function addPokemon(_playerNumber, gameProps) {
     );
     pokemon.mesh.material.color.set(newColor);
 
+    pokemon.updateIndicator();
+  };
+
+  pokemon.updateIndicator = () => {
     const position = rgb2xy(
       pokemon.stats.colors.r,
       pokemon.stats.colors.g,
@@ -243,40 +250,22 @@ export function addPokemon(_playerNumber, gameProps) {
   };
 
   pokemon.initAttackUI = () => {
-    menu = document.getElementById(`slot${playerNumber}_attacks`);
+    attacksMenu = document.getElementById(`slot${playerNumber}_attacks`);
     indicator = document.getElementById(`slot${playerNumber}_indicator`);
+    if (!pokeStats[playerNumber - 1].isBot) {
+      pokeStats[playerNumber - 1].attacks.forEach((attack) => {
+        let attackBtn = document.createElement("button");
+        attackBtn.innerHTML = attack.label;
+        attackBtn.style.backgroundColor = rgbToHex(attack.damage);
+        attackBtn.id = "btn";
 
-    pokeStats[playerNumber - 1].attacks.forEach((attack) => {
-      let attackBtn = document.createElement("button");
-      attackBtn.innerHTML = attack.label;
-      attackBtn.style.backgroundColor = rgbToHex(attack.damage);
-      attackBtn.id = "btn";
-
-      attackBtn.onclick = () => {
-        pokemon.addDialog(attack.dialog);
-        if (attack.type == "absorb") {
-          addColorSphere(
-            pokemon,
-            attack.damage
-            // sphereOptions.colors[
-            //   Math.floor(Math.random() * sphereOptions.colors.length)
-            // ]
-          );
-          pokemon.opponent.removeColor(attack.damage);
-        } else if (attack.type == "recharge") {
-          pokemon.childrenObjects.forEach(
-            (children) => (children.stats.size += 0.2)
-          );
-        } else if (attack.type == "discharge") {
-          pokemon.childrenObjects.forEach(
-            (children) => (children.state.attacking = true)
-          );
-        } else {
-          pokemon.opponent.addColor(attack.damage);
-        }
-      };
-      menu.appendChild(attackBtn);
-    });
+        attackBtn.onclick = () => {
+          //add condition to let player click only on his turn
+          pokemon.startAttack(attack);
+        };
+        attacksMenu.appendChild(attackBtn);
+      });
+    }
   };
 
   pokemon.addDialog = (text) => {
@@ -290,8 +279,36 @@ export function addPokemon(_playerNumber, gameProps) {
         awesomeLines[Math.floor(Math.random() * awesomeLines.length)]
       }`
     );
-    // .on("sequence:end", function () {
-    // });
+  };
+
+  pokemon.startAttack = (attack) => {
+    gameProps.state.playerDone[_playerNumber - 1] = true;
+    gameProps.state.playerTurn[_playerNumber - 1] = false;
+    gameProps.state.inBetweenTurns = true;
+
+    attacksMenu.style.display = "none";
+    pokemon.updateIndicator();
+
+    pokemon.addDialog(attack.dialog);
+
+    if (attack.type == "absorb") {
+      addColorSphere(pokemon, attack.damage);
+      pokemon.opponent.removeColor(attack.damage);
+    } else if (attack.type == "recharge") {
+      pokemon.childrenObjects.forEach(
+        (children) => (children.stats.size += 0.2)
+      );
+    } else if (attack.type == "discharge") {
+      pokemon.childrenObjects.forEach(
+        (children) => (children.state.attacking = true)
+      );
+    } else {
+      pokemon.opponent.addColor(attack.damage);
+    }
+
+    setTimeout(() => {
+      gameProps.state.inBetweenTurns = false;
+    }, 3000);
   };
 
   pokemon.initColorCicleUI = () => {
@@ -323,6 +340,24 @@ export function addPokemon(_playerNumber, gameProps) {
         children.update();
       }
     });
+
+    if (
+      gameProps.state.playerTurn[_playerNumber - 1] &&
+      !gameProps.state.playerDone[_playerNumber - 1]
+    ) {
+      attacksMenu.style.display = "flex";
+      pokemon.updateIndicator();
+
+      if (pokemon.state.isBot) {
+        console.log("im a bot and i will attack");
+        pokemon.startAttack(
+          pokeStats[_playerNumber - 1].attacks[0]
+          // Math.floor(
+          //   Math.random() * pokeStats[_playerNumber - 1].attacks.length
+          // )
+        );
+      }
+    }
   };
 
   return pokemon;
@@ -351,7 +386,6 @@ export function addColorSphere(_parent, color) {
     `rgb(${_color.r}, ${_color.g}, ${_color.b})`
   );
   let material = new THREE.MeshBasicMaterial({ color: sphereColor });
-  //material.side = THREE.DoubleSide;
 
   sphere.mesh = new THREE.Mesh(geometry, material);
 

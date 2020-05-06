@@ -59,14 +59,21 @@ const initScene = () => {
   gameProps.theater
     .addActor("first_line", { accuracy: 0.9, speed: 1.5 })
     .addActor("second_line", { accuracy: 0.9, speed: 1.5 });
+
+  gameProps.theater.on("sequence:end", function () {});
+
   gameProps.availableActors = [
     document.getElementById("first_line"),
     document.getElementById("second_line"),
   ];
 
-  // gameProps.theater.availableActors = [
-
-  // ];
+  gameProps.state = {
+    gameReady: false,
+    playerTurn: [false, false],
+    playerDone: [false, false],
+    inBetweenTurns: false,
+    gameStep: 0, //1 - player 1, 2 - Enemy. 3 - something else
+  };
 
   scene = new THREE.Scene();
   camera = new PerspectiveCamera(
@@ -96,6 +103,9 @@ const initScene = () => {
   timeInit = Date.now();
 
   requestAnimationFrame(update);
+
+  gameProps.state.gameReady = true;
+  gameProps.state.playerTurn[0] = true;
 };
 
 const getNewTnterval = () => {
@@ -110,6 +120,19 @@ const update = () => {
     timeInit = Date.now();
     timeInterval = getNewTnterval();
   }
+
+  if (!gameProps.state.inBetweenTurns) {
+    if (gameProps.state.playerDone[0]) {
+      console.log("Entrou 1");
+      gameProps.state.playerTurn[1] = true;
+      gameProps.state.playerDone[0] = false;
+    } else if (gameProps.state.playerDone[1]) {
+      console.log("Entrou 2");
+      gameProps.state.playerTurn[0] = true;
+      gameProps.state.playerDone[1] = false;
+    }
+  }
+
   renderer.render(scene, camera); // render the scene
   sceneObjects.forEach((object) => object.update());
 
