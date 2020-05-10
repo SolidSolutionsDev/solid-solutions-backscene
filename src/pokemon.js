@@ -17,9 +17,96 @@ const sphereOptions = {
   startingSize: 0.2,
 };
 
-const pokeStats = [
+const pokeList = [
   {
-    name: "GREAT CUBE",
+    name: "Blue White Mouse",
+    frontAsset: "../../images/solid1_front_nb_s.gif",
+    backAsset: "../../images/solid1_back_nb_s.gif",
+    initColor: {
+      r: 200,
+      g: 200,
+      b: 40,
+    },
+    attacks: [
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 255, g: 0, b: 255 },
+        dialog: " hmmm hmmm hmmm",
+      },
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 0, g: 255, b: 255 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 255, g: 255, b: 0 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: "Focus",
+        type: "recharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " is feeling a surge of color!",
+      },
+      {
+        label: "Release",
+        type: "discharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " realeases every color on the enemy!",
+      },
+    ],
+  },
+  {
+    name: "White Grey Mouse",
+    frontAsset: "../../images/solid1_front_nb_s.gif",
+    backAsset: "../../images/solid1_back_nb_s.gif",
+    initColor: {
+      r: 200,
+      g: 200,
+      b: 40,
+    },
+    attacks: [
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 255, g: 0, b: 255 },
+        dialog: " hmmm hmmm hmmm",
+      },
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 0, g: 255, b: 255 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: ".",
+        type: "absorb",
+        damage: { r: 255, g: 255, b: 0 },
+        dialog: " 'bytes' the enemy!",
+      },
+      {
+        label: "Focus",
+        type: "recharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " is feeling a surge of color!",
+      },
+      {
+        label: "Release",
+        type: "discharge",
+        damage: { r: 0, g: 0, b: 0 },
+        dialog: " realeases every color on the enemy!",
+      },
+    ],
+  },
+];
+
+const playerStats = [
+  {
+    name: "Blue White Mouse",
     isBot: false,
     initColor: {
       r: 200,
@@ -132,18 +219,18 @@ export function addPokemon(_playerNumber, gameProps) {
     animating: false,
     playerNumber: playerNumber,
     myTurn: true,
-    isBot: pokeStats[playerNumber - 1].isBot,
+    isBot: playerStats[playerNumber - 1].isBot,
   };
 
   let attacksMenu, indicator, circleCanvas;
   pokemon.childrenObjects = [];
 
   pokemon.stats = {
-    name: pokeStats[playerNumber - 1].name,
+    name: playerStats[playerNumber - 1].name,
     colors: {
-      r: pokeStats[playerNumber - 1].initColor.r,
-      g: pokeStats[playerNumber - 1].initColor.g,
-      b: pokeStats[playerNumber - 1].initColor.b,
+      r: playerStats[playerNumber - 1].initColor.r,
+      g: playerStats[playerNumber - 1].initColor.g,
+      b: playerStats[playerNumber - 1].initColor.b,
     },
     focusColor: {
       r: 0,
@@ -152,37 +239,62 @@ export function addPokemon(_playerNumber, gameProps) {
     },
   };
 
+  pokemon.createSprite = (startingColor) => {
+    let map;
+    if (playerNumber == 2) {
+      map = new THREE.TextureLoader().load(
+        "../../images/solid1_front_nb_s.gif"
+      );
+    } else {
+      map = new THREE.TextureLoader().load("../../images/solid1_back_nb_s.gif");
+    }
+    let material = new THREE.SpriteMaterial({ map: map, color: startingColor });
+    let pokeSprite = new THREE.Sprite(material);
+
+    //pokeSprite.scale.set(10, 10, 1);
+
+    pokeSprite.material.color = new THREE.Color(0xff66cc);
+
+    return pokeSprite;
+  };
+
+  pokemon.createCubeMesh = (startingColor) => {
+    let geometry = new THREE.BoxGeometry(2, 3, 3);
+    let material = new THREE.MeshBasicMaterial({ color: startingColor });
+    let pokeMesh = new THREE.Mesh(geometry, material);
+
+    let geo = new THREE.EdgesGeometry(pokeMesh.geometry); // or WireframeGeometry
+    let mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
+    let wireframe = new THREE.LineSegments(geo, mat);
+
+    let geom = new THREE.CircleGeometry(4, 32);
+    let mate = new THREE.MeshBasicMaterial({ color: 0x666666 });
+    let circle = new THREE.Mesh(geom, mate);
+
+    circle.rotation.set(-1.3, 0, 0);
+    circle.position.set(0, -2, 0);
+
+    pokeMesh.add(circle);
+    pokeMesh.add(wireframe);
+
+    return pokeMesh;
+  };
+
   let startingColor = new THREE.Color(
     `rgb(${pokemon.stats.colors.r}, ${pokemon.stats.colors.g}, ${pokemon.stats.colors.b})`
   );
 
-  let geometry = new THREE.BoxGeometry(2, 3, 3);
-  let material = new THREE.MeshBasicMaterial({ color: startingColor });
-  pokemon.mesh = new THREE.Mesh(geometry, material);
-
-  let geo = new THREE.EdgesGeometry(pokemon.mesh.geometry); // or WireframeGeometry
-  let mat = new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 });
-  let wireframe = new THREE.LineSegments(geo, mat);
-
-  let geom = new THREE.CircleGeometry(4, 32);
-  let mate = new THREE.MeshBasicMaterial({ color: 0x666666 });
-  let circle = new THREE.Mesh(geom, mate);
-
-  pokemon.mesh.add(circle);
-  pokemon.mesh.add(wireframe);
-
-  circle.rotation.set(-1.3, 0, 0);
-  circle.position.set(0, -2, 0);
+  pokemon.mesh = pokemon.createCubeMesh(startingColor);
 
   pokemon.mesh.position.set(
-    pokeStats[playerNumber - 1].position.x,
-    pokeStats[playerNumber - 1].position.y,
-    pokeStats[playerNumber - 1].position.z
+    playerStats[playerNumber - 1].position.x,
+    playerStats[playerNumber - 1].position.y,
+    playerStats[playerNumber - 1].position.z
   );
   pokemon.mesh.rotation.set(
-    pokeStats[playerNumber - 1].rotation.x,
-    pokeStats[playerNumber - 1].rotation.y,
-    pokeStats[playerNumber - 1].rotation.z
+    playerStats[playerNumber - 1].rotation.x,
+    playerStats[playerNumber - 1].rotation.y,
+    playerStats[playerNumber - 1].rotation.z
   );
 
   pokemon.addColor = (colorDamage) => {
@@ -252,8 +364,8 @@ export function addPokemon(_playerNumber, gameProps) {
   pokemon.initAttackUI = () => {
     attacksMenu = document.getElementById(`slot${playerNumber}_attacks`);
     indicator = document.getElementById(`slot${playerNumber}_indicator`);
-    if (!pokeStats[playerNumber - 1].isBot) {
-      pokeStats[playerNumber - 1].attacks.forEach((attack) => {
+    if (!playerStats[playerNumber - 1].isBot) {
+      playerStats[playerNumber - 1].attacks.forEach((attack) => {
         let attackBtn = document.createElement("button");
         attackBtn.innerHTML = attack.label;
         attackBtn.style.backgroundColor = rgbToHex(attack.damage);
@@ -357,12 +469,14 @@ export function addPokemon(_playerNumber, gameProps) {
 
         if (pokemon.childrenObjects.length) {
           attackNumber = Math.floor(
-            Math.random() * pokeStats[_playerNumber - 1].attacks.length
+            Math.random() * playerStats[_playerNumber - 1].attacks.length
           );
         } else {
           attackNumber = Math.floor(Math.random() * 3);
         }
-        pokemon.startAttack(pokeStats[_playerNumber - 1].attacks[attackNumber]);
+        pokemon.startAttack(
+          playerStats[_playerNumber - 1].attacks[attackNumber]
+        );
       }
     }
   };
