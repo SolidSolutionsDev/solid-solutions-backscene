@@ -57,6 +57,8 @@ button:hover {
 }
 
 .indicator {
+  color: #000000;
+  font-weight: bold;
   position: absolute;
   z-index: 200;
   height: 1px;
