@@ -14,14 +14,7 @@ const windowSize = {
   height: 720,
 };
 
-var scene,
-  renderer,
-  camera,
-  timeInit,
-  timePassed,
-  timeInterval,
-  canvas,
-  clicking;
+var scene, renderer, camera, canvas, clicking;
 
 var sceneObjects = [];
 
@@ -95,9 +88,6 @@ const initScene = () => {
 
   sceneObjects.push(poke1);
   sceneObjects.push(poke2);
-
-  timeInterval = getNewTnterval();
-  timeInit = Date.now();
 
   requestAnimationFrame(update);
 
