@@ -1,3 +1,5 @@
+import { reparentObject3D } from "./Utils/utils";
+
 export function addColorSphere(_parent, color) {
   let sphere = {
     state: {

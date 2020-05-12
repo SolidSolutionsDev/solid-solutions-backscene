@@ -6,9 +6,6 @@ import { addPokemon } from "./pokemon";
 
 import "./index.css";
 
-const TIME_MAX = 2000;
-const TIME_MIN = 500;
-
 const windowSize = {
   width: 960,
   height: 720,
@@ -93,10 +90,6 @@ const initScene = () => {
 
   gameProps.state.gameReady = true;
   gameProps.state.playerTurn[0] = true;
-};
-
-const getNewTnterval = () => {
-  return Math.floor(Math.random() * (TIME_MAX - TIME_MIN)) + TIME_MIN;
 };
 
 const update = () => {
