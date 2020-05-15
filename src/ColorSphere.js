@@ -1,4 +1,6 @@
+import THREE from "three.js";
 import { reparentObject3D } from "./Utils/utils";
+import { sphereOptions } from "./states";
 
 export function addColorSphere(_parent, color) {
   let sphere = {
@@ -46,7 +48,6 @@ export function addColorSphere(_parent, color) {
     }
 
     if (sphere.stats.size > sphere.stats.currentSize) {
-      console.log(sphere.stats.size, sphere.stats.currentSize);
       sphere.stats.currentSize += 0.01;
       sphere.mesh.scale.set(
         sphere.stats.currentSize,
@@ -102,7 +103,6 @@ export function addColorSphere(_parent, color) {
     } else if (sphere.mesh.position.x < -error) {
       sphere.mesh.position.x += speed2target.x;
     } else {
-      console.log("collidded in x");
       sphere.state.exploding = true;
     }
 
@@ -111,7 +111,6 @@ export function addColorSphere(_parent, color) {
     } else if (sphere.mesh.position.y < -error) {
       sphere.mesh.position.y += speed2target.y;
     } else {
-      console.log("collidded in y");
       sphere.state.exploding = true;
     }
 
@@ -120,7 +119,6 @@ export function addColorSphere(_parent, color) {
     } else if (sphere.mesh.position.z < -error) {
       sphere.mesh.position.z += speed2target.z;
     } else {
-      console.log("collidded in z");
       sphere.state.exploding = true;
     }
   };

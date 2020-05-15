@@ -5,6 +5,7 @@ import {
   drawCircleOnCanvas,
   rgbToHex,
   rgb2xy,
+  xy2polar,
 } from "./Utils/utils";
 import { addColorSphere } from "./ColorSphere";
 
@@ -19,6 +20,8 @@ export function addPokemon(_playerNumber, gameProps) {
     playerNumber: playerNumber,
     myTurn: true,
     isBot: playerStats[playerNumber - 1].isBot,
+    isInsideDeathRadius: false,
+    fainted: false,
   };
 
   let attacksMenu, indicator, circleCanvas;
@@ -36,6 +39,8 @@ export function addPokemon(_playerNumber, gameProps) {
       g: 0,
       b: 0,
     },
+    deathRadius: playerStats[playerNumber - 1].deathRadius,
+    deathRadiusVolatility: playerStats[playerNumber - 1].deathRadiusVolatility,
   };
 
   pokemon.createSprite = (startingColor) => {
@@ -142,7 +147,9 @@ export function addPokemon(_playerNumber, gameProps) {
 
   pokemon.updateColorIndicatorAndMesh = () => {
     let newColor = new THREE.Color(
-      `rgb(${pokemon.stats.colors.r}, ${pokemon.stats.colors.g}, ${pokemon.stats.colors.b})`
+      `rgb(${Math.floor(pokemon.stats.colors.r)}, ${Math.floor(
+        pokemon.stats.colors.g
+      )}, ${Math.floor(pokemon.stats.colors.b)})`
     );
     pokemon.mesh.material.color.set(newColor);
 
@@ -156,8 +163,30 @@ export function addPokemon(_playerNumber, gameProps) {
       pokemon.stats.colors.b
     );
 
+    let [r, phi] = xy2polar(position.x, position.y);
+
+    if (!pokemon.state.isInsideDeathRadius && r < pokemon.stats.deathRadius) {
+      pokemon.deathSavingThrow();
+      pokemon.state.isInsideDeathRadius = true;
+    } else if (pokemon.state.isInsideDeathRadius) {
+      pokemon.state.isInsideDeathRadius = false;
+    }
+
     indicator.style.left = circleCanvas.offsetLeft - 4 - position.x + 50 + "px";
     indicator.style.top = circleCanvas.offsetTop - position.y + 50 + "px";
+  };
+
+  pokemon.deathSavingThrow = () => {
+    let savingThrow = Math.random() * 100;
+
+    pokemon.state.fainted =
+      savingThrow < pokemon.stats.deathRadiusVolatility ? true : false;
+
+    console.log(savingThrow, pokemon.state.fainted);
+
+    if (pokemon.state.fainted) {
+      pokemon.addDialog("just fainted!");
+    }
   };
 
   pokemon.initAttackUI = () => {
@@ -261,10 +290,7 @@ export function addPokemon(_playerNumber, gameProps) {
       pokemon.updateIndicator();
 
       if (pokemon.state.isBot) {
-        console.log("im a bot and i will attack");
         let attackNumber = 0;
-
-        console.log("Size ", pokemon.childrenObjects.length);
 
         if (pokemon.childrenObjects.length) {
           attackNumber = Math.floor(

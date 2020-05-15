@@ -95,11 +95,9 @@ const initScene = () => {
 const update = () => {
   if (!gameProps.state.inBetweenTurns) {
     if (gameProps.state.playerDone[0]) {
-      console.log("Entrou 1");
       gameProps.state.playerTurn[1] = true;
       gameProps.state.playerDone[0] = false;
     } else if (gameProps.state.playerDone[1]) {
-      console.log("Entrou 2");
       gameProps.state.playerTurn[0] = true;
       gameProps.state.playerDone[1] = false;
     }

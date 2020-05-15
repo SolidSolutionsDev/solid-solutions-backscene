@@ -106,6 +106,8 @@ export const playerStats = [
   {
     name: "Blue White Mouse",
     isBot: false,
+    deathRadius: 20,
+    deathRadiusVolatility: 80,
     initColor: {
       r: 200,
       g: 200,
@@ -157,6 +159,8 @@ export const playerStats = [
   {
     name: "BEAUTIFUL CUBE",
     isBot: true,
+    deathRadius: 20,
+    deathRadiusVolatility: 80,
     initColor: {
       r: 40,
       g: 200,

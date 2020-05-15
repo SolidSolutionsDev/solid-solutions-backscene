@@ -6,7 +6,7 @@ export function reparentObject3D(subject, newParent) {
   newParent.add(subject);
 }
 
-export const drawCircleOnCanvas = (_playerNumber) => {
+export const drawCircleOnCanvas = (_playerNumber, deathRadius = 20) => {
   let circleCanvas = document.getElementById(
     `slot${_playerNumber}_colorCanvas`
   );
@@ -43,20 +43,20 @@ export const drawCircleOnCanvas = (_playerNumber) => {
         let [red, green, blue] = hsv2rgb(hue, saturation, value);
 
         let alpha = 255;
-
-        data[index] = red;
-        data[index + 1] = green;
-        data[index + 2] = blue;
-        data[index + 3] = alpha;
+        if (r > deathRadius - 1 && r < deathRadius + 1) {
+          data[index] = 255;
+          data[index + 1] = 255;
+          data[index + 2] = 255;
+          data[index + 3] = 255;
+        } else {
+          data[index] = red;
+          data[index + 1] = green;
+          data[index + 2] = blue;
+          data[index + 3] = alpha;
+        }
       }
     }
     ctx.putImageData(image, 0, 0);
-  }
-
-  function xy2polar(x, y) {
-    let r = Math.sqrt(x * x + y * y);
-    let phi = Math.atan2(y, x);
-    return [r, phi];
   }
 
   // rad in [-π, π] range
@@ -68,6 +68,12 @@ export const drawCircleOnCanvas = (_playerNumber) => {
   drawCircle();
 
   return circleCanvas;
+};
+
+export const xy2polar = (x, y) => {
+  let r = Math.sqrt(x * x + y * y);
+  let phi = Math.atan2(y, x);
+  return [r, phi];
 };
 
 // [0,255] to [00, FF]
@@ -95,13 +101,6 @@ export const rgb2xy = (r, g, b) => {
   let theta = deg2rad(hsv.h);
 
   let distance2center = hsv.s * radius;
-
-  // console.log(
-  //   "hsv: ",
-  //   hsv,
-  //   "theta: " + theta,
-  //   "distance2center: " + distance2center
-  // );
 
   let position = polar2xy(distance2center, theta);
 
