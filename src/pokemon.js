@@ -151,6 +151,7 @@ export function addPokemon(_playerNumber, gameProps) {
         pokemon.stats.colors.g
       )}, ${Math.floor(pokemon.stats.colors.b)})`
     );
+
     pokemon.mesh.material.color.set(newColor);
 
     pokemon.updateIndicator();

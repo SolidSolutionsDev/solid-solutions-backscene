@@ -74,11 +74,6 @@ export function addColorSphere(_parent, color) {
         g: _color.g * sphere.stats.size,
         b: _color.b * sphere.stats.size,
       });
-      console.log("Color added: ", {
-        r: _color.r * sphere.stats.size,
-        g: _color.g * sphere.stats.size,
-        b: _color.b * sphere.stats.size,
-      });
       sphere.state.dead = true;
     }
   };

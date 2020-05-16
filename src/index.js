@@ -11,7 +11,7 @@ const windowSize = {
   height: 720,
 };
 
-var scene, renderer, camera, canvas, clicking;
+var scene, renderer, camera, canvas;
 
 var sceneObjects = [];
 
@@ -23,14 +23,6 @@ const initScene = () => {
 
   canvas = document.getElementById("viewport");
   canvas.appendChild(renderer.domElement);
-
-  canvas.onmousedown = () => {
-    clicking = true;
-  };
-
-  canvas.onmouseup = () => {
-    clicking = false;
-  };
 
   gameProps.theater = Theater({
     minSpeed: {
@@ -59,7 +51,6 @@ const initScene = () => {
     playerTurn: [false, false],
     playerDone: [false, false],
     inBetweenTurns: false,
-    gameStep: 0, //1 - player 1, 2 - Enemy. 3 - something else
   };
 
   scene = new THREE.Scene();
@@ -93,15 +84,28 @@ const initScene = () => {
 };
 
 const update = () => {
-  if (!gameProps.state.inBetweenTurns) {
+  //STATE (1) INITING - Initing game
+
+  //STATE (2) BATTLE SCENE - a battle is going on!
+
+  //STATE (2.1) BETWEEN TURNS - awaiting for attack animations
+  if (gameProps.state.inBetweenTurns) {
+  } else if (!gameProps.state.inBetweenTurns) {
+    //STATE (2.2) PLAYER 2 TURN
     if (gameProps.state.playerDone[0]) {
       gameProps.state.playerTurn[1] = true;
       gameProps.state.playerDone[0] = false;
-    } else if (gameProps.state.playerDone[1]) {
+    }
+    //STATE (2.3) PLAYER 2 TURN
+    else if (gameProps.state.playerDone[1]) {
       gameProps.state.playerTurn[0] = true;
       gameProps.state.playerDone[1] = false;
     }
   }
+
+  //STATE (3) END BATTLE SCREEN - a battle is going on!
+
+  //STATE (4) GAME MENU
 
   renderer.render(scene, camera);
   sceneObjects.forEach((object) => object.update());
