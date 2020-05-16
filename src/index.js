@@ -12,15 +12,38 @@ const windowSize = {
 };
 
 var scene, renderer, camera, canvas;
+var startScreenDiv, startGameDiv, battleScreenDiv;
 
 var sceneObjects = [];
 
-var gameProps = {};
+var gameProps = {
+  state: {
+    gameReady: false,
+    playerTurn: [false, false],
+    playerDone: [false, false],
+    inBetweenTurns: false,
+    IS_IN_MENU: true,
+    IS_IN_GAME: false,
+  },
+};
 
 const initScene = () => {
   renderer = new WebGLRenderer({ antialias: true });
   renderer.setSize(windowSize.width, windowSize.height);
 
+  //INIT MENU
+  startScreenDiv = document.getElementById("start-screen");
+  startGameDiv = document.getElementById("start-game");
+  battleScreenDiv = document.getElementById("battle-screen");
+
+  startGameDiv.onclick = () => {
+    gameProps.state.IS_IN_MENU = false;
+    gameProps.state.IS_IN_GAME = true;
+    battleScreenDiv.style.display = "flex";
+    startScreenDiv.style.display = "none";
+  };
+
+  //INIT CANVAS
   canvas = document.getElementById("viewport");
   canvas.appendChild(renderer.domElement);
 
@@ -46,13 +69,7 @@ const initScene = () => {
     document.getElementById("second_line"),
   ];
 
-  gameProps.state = {
-    gameReady: false,
-    playerTurn: [false, false],
-    playerDone: [false, false],
-    inBetweenTurns: false,
-  };
-
+  //INIT SCNENE
   scene = new THREE.Scene();
   camera = new PerspectiveCamera(
     35,
@@ -85,30 +102,33 @@ const initScene = () => {
 
 const update = () => {
   //STATE (1) INITING - Initing game
-
+  if (gameProps.state.IS_IN_MENU) {
+    battleScreenDiv.style.display = "none";
+  }
   //STATE (2) BATTLE SCENE - a battle is going on!
+  else if (gameProps.state.IS_IN_GAME) {
+    //STATE (2.1) BETWEEN TURNS - awaiting for attack animations
+    if (gameProps.state.inBetweenTurns) {
+    } else if (!gameProps.state.inBetweenTurns) {
+      //STATE (2.2) PLAYER 2 TURN
+      if (gameProps.state.playerDone[0]) {
+        gameProps.state.playerTurn[1] = true;
+        gameProps.state.playerDone[0] = false;
+      }
+      //STATE (2.3) PLAYER 2 TURN
+      else if (gameProps.state.playerDone[1]) {
+        gameProps.state.playerTurn[0] = true;
+        gameProps.state.playerDone[1] = false;
+      }
+    }
 
-  //STATE (2.1) BETWEEN TURNS - awaiting for attack animations
-  if (gameProps.state.inBetweenTurns) {
-  } else if (!gameProps.state.inBetweenTurns) {
-    //STATE (2.2) PLAYER 2 TURN
-    if (gameProps.state.playerDone[0]) {
-      gameProps.state.playerTurn[1] = true;
-      gameProps.state.playerDone[0] = false;
-    }
-    //STATE (2.3) PLAYER 2 TURN
-    else if (gameProps.state.playerDone[1]) {
-      gameProps.state.playerTurn[0] = true;
-      gameProps.state.playerDone[1] = false;
-    }
+    renderer.render(scene, camera);
+    sceneObjects.forEach((object) => object.update());
   }
 
   //STATE (3) END BATTLE SCREEN - a battle is going on!
 
   //STATE (4) GAME MENU
-
-  renderer.render(scene, camera);
-  sceneObjects.forEach((object) => object.update());
 
   requestAnimationFrame(update);
 };

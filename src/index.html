@@ -9,31 +9,38 @@
   </head>
 
   <body>
-    <div class="player_UI" id="slot2">
-      <div class="attacks" id="slot2_attacks"></div>
-      <div class="colorCanvas">
-        <canvas id="slot2_colorCanvas" width="100px" height="100px"></canvas>
-        <div class="indicator" id="slot2_indicator">O</div>
-      </div>
+    <div id="start-screen">
+      <div class="option" id="start-game">Start Game</div>
+      <div class="option" id="exit">Exit Game</div>
     </div>
 
-    <div id="viewport"></div>
-
-    <div class="player_UI" id="slot1">
-      <div class="attacks" id="slot1_attacks"></div>
-      <div class="colorCanvas">
-        <canvas id="slot1_colorCanvas" width="100px" height="100px"></canvas>
-        <div class="indicator" id="slot1_indicator">O</div>
+    <div id="battle-screen">
+      <div class="player_UI" id="slot2">
+        <div class="attacks" id="slot2_attacks"></div>
+        <div class="colorCanvas">
+          <canvas id="slot2_colorCanvas" width="100px" height="100px"></canvas>
+          <div class="indicator" id="slot2_indicator">O</div>
+        </div>
       </div>
-    </div>
 
-    <div id="system_UI">
-      <div id="system_label">
-        SYSTEM
+      <div id="viewport"></div>
+
+      <div class="player_UI" id="slot1">
+        <div class="attacks" id="slot1_attacks"></div>
+        <div class="colorCanvas">
+          <canvas id="slot1_colorCanvas" width="100px" height="100px"></canvas>
+          <div class="indicator" id="slot1_indicator">O</div>
+        </div>
       </div>
-      <div id="system_dialog_box">
-        <div class="dialog" id="first_line"></div>
-        <div class="dialog" id="second_line"></div>
+
+      <div id="system_UI">
+        <div id="system_label">
+          SYSTEM
+        </div>
+        <div id="system_dialog_box">
+          <div class="dialog" id="first_line"></div>
+          <div class="dialog" id="second_line"></div>
+        </div>
       </div>
     </div>
   </body>
