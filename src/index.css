@@ -27,8 +27,13 @@ body {
 }
 
 .colorCanvas {
+  margin-left: 5px;
   display: flex;
   flex-direction: column;
+}
+
+.attacks-wrapper {
+  width: 100px;
 }
 .attacks {
   display: flex;
