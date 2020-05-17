@@ -1,13 +1,18 @@
 import React from "react";
 import * as THREE from "three";
 
-export class TETSUOParticlesGeometryTest extends React.Component {
-  initTetsuoGeometry = () => {
-    const { transform } = this.props;
+export function addCylinder(_transform) {
+  let cyls = [];
+  let pMesh;
+  let cylinder = {};
+
+  cylinder.mesh = _transform;
+
+  cylinder.initGeometry = () => {
     let cylCount = 25;
     let cylHeight = 0.1;
     let cylSpacing = cylHeight / 2;
-    let cyls = [];
+
     for (let i = 0; i < cylCount; i++) {
       let geo = new THREE.CylinderGeometry(1, 1, cylHeight, 5);
       let mat = new THREE.MeshNormalMaterial();
@@ -15,7 +20,7 @@ export class TETSUOParticlesGeometryTest extends React.Component {
       cyl.position.y = i * (cylHeight + cylSpacing);
       cyl.rotation.y = i / 20;
       cyls.push(cyl);
-      transform.add(cyl);
+      cylinder.mesh.add(cyl);
     }
 
     // create particles
@@ -35,21 +40,18 @@ export class TETSUOParticlesGeometryTest extends React.Component {
       pGeo.vertices.push(p.position);
     }
     const pMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 });
-    this.pMesh = new THREE.Points(pGeo, pMat);
-    transform.add(this.pMesh);
-    this.cyls = cyls;
+    pMesh = new THREE.Points(pGeo, pMat);
+    cylinder.mesh.add(pMesh);
   };
 
-  start = () => {
-    this.initTetsuoGeometry();
-  };
+  cylinder.initGeometry();
 
-  update = () => {
-    this.cyls.forEach((cyl) => {
+  cylinder.update = () => {
+    cyls.forEach((cyl) => {
       cyl.rotation.y += 0.01;
-      this.pMesh.rotation.y -= 0.001;
+      pMesh.rotation.y -= 0.001;
     });
   };
-}
 
-TETSUOParticlesGeometryTest.propTypes = {};
+  return cylinder;
+}

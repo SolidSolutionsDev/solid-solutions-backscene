@@ -8,11 +8,13 @@ import {
   xy2polar,
 } from "./Utils/utils";
 import { addColorSphere } from "./ColorSphere";
+import { addCylinder } from "./Cylinder";
 
 export function addPokemon(_playerNumber, gameProps) {
   let pokemon = {};
-
   let playerNumber = _playerNumber;
+  let attacksMenu, indicator, circleCanvas;
+  pokemon.childrenObjects = [];
 
   pokemon.state = {
     init: false,
@@ -23,9 +25,6 @@ export function addPokemon(_playerNumber, gameProps) {
     isInsideDeathRadius: false,
     fainted: false,
   };
-
-  let attacksMenu, indicator, circleCanvas;
-  pokemon.childrenObjects = [];
 
   pokemon.stats = {
     name: playerStats[playerNumber - 1].name,
@@ -84,11 +83,24 @@ export function addPokemon(_playerNumber, gameProps) {
     return pokeMesh;
   };
 
+  pokemon.createCylinderMesh = (startingColor) => {
+    let geometry = new THREE.BoxGeometry(1, 1, 1);
+    let material = new THREE.MeshBasicMaterial({ color: startingColor });
+    let pivotMesh = new THREE.Mesh(geometry, material);
+
+    let pokeCylinder = addCylinder(pivotMesh);
+
+    return [pokeCylinder.mesh, pokeCylinder.update];
+  };
+
   let startingColor = new THREE.Color(
     `rgb(${pokemon.stats.colors.r}, ${pokemon.stats.colors.g}, ${pokemon.stats.colors.b})`
   );
 
-  pokemon.mesh = pokemon.createCubeMesh(startingColor);
+  //pokemon.mesh = pokemon.createCubeMesh(startingColor);
+  [pokemon.mesh, pokemon.mesh.update] = pokemon.createCylinderMesh(
+    startingColor
+  );
 
   pokemon.mesh.position.set(
     playerStats[playerNumber - 1].position.x,
@@ -282,6 +294,8 @@ export function addPokemon(_playerNumber, gameProps) {
         children.update();
       }
     });
+
+    pokemon.mesh.update();
 
     if (
       gameProps.state.playerTurn[_playerNumber - 1] &&
