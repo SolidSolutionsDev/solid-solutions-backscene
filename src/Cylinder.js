@@ -1,4 +1,3 @@
-import React from "react";
 import * as THREE from "three";
 
 export function addCylinder(_transform) {
