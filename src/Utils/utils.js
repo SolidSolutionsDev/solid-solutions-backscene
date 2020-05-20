@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 export function reparentObject3D(subject, newParent) {
   subject.matrix.copy(subject.matrixWorld);
-  subject.applyMatrix(new THREE.Matrix4().getInverse(newParent.matrixWorld));
+  subject.applyMatrix4(new THREE.Matrix4().getInverse(newParent.matrixWorld));
   newParent.add(subject);
 }
 
