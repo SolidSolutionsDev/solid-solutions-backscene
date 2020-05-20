@@ -1,4 +1,4 @@
-import THREE from "three.js";
+import * as THREE from "three";
 import { reparentObject3D } from "./Utils/utils";
 import { sphereOptions } from "./states";
 

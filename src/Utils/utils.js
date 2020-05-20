@@ -1,4 +1,4 @@
-import THREE from "three";
+import * as THREE from "three";
 
 export function reparentObject3D(subject, newParent) {
   subject.matrix.copy(subject.matrixWorld);

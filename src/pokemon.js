@@ -1,4 +1,4 @@
-import THREE from "three";
+import * as THREE from "three";
 import { awesomeLines, pokeList, sphereOptions, playerStats } from "./states";
 import {
   reparentObject3D,

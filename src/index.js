@@ -1,4 +1,4 @@
-import THREE, { WebGLRenderer, PerspectiveCamera } from "three";
+import * as THREE from "three";
 import Theater from "theaterjs"; // {https://github.com/Zhouzi/TheaterJS
 //https://jsfiddle.net/p1e9La6w/
 import fragmentShader from "../src/Utils/logo.glsl";
@@ -28,7 +28,7 @@ var gameProps = {
 };
 
 const initScene = () => {
-  renderer = new WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(windowSize.width, windowSize.height);
 
   //INIT MENU
@@ -71,7 +71,7 @@ const initScene = () => {
 
   //INIT SCNENE
   scene = new THREE.Scene();
-  camera = new PerspectiveCamera(
+  camera = new THREE.PerspectiveCamera(
     35,
     windowSize.width / windowSize.height,
     1,
@@ -90,6 +90,21 @@ const initScene = () => {
 
   scene.add(poke1.mesh);
   scene.add(poke2.mesh);
+
+  let face = new TETSUO.Premade.Face({
+    geometryPath: "./public/res/face.json",
+  });
+
+  let light = new THREE.DirectionalLight(0xffffff, 1);
+  light.position.set(20, 20, 20);
+  scene.add(light);
+
+  face.prepare().then((mesh) => {
+    mesh.position.z = 0;
+    mesh.position.x = 0;
+    mesh.rotation.x = 0;
+    scene.add(mesh);
+  });
 
   sceneObjects.push(poke1);
   sceneObjects.push(poke2);
